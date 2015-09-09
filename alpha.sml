@@ -145,6 +145,20 @@ structure Alpha = struct
         in
           x::xs'
         end
+    | convertStatement' env (ReturnStatement (span, v0)::xs) =
+        let
+          val x = ReturnStatement (span, convertLargeExp env v0)
+          val xs' = convertStatement' env xs
+        in
+          x::xs'
+        end
+    | convertStatement' env (ReturnStatement2 (span, v0, v1)::xs) =
+        let
+          val x = ReturnStatement2 (span, convertExp env v0 , convertExp' env v1)
+          val xs' = convertStatement' env xs
+        in
+          x::xs'
+        end
   and convertLargeExp env (PipeExp (span, v0, v1)) =
         PipeExp (span, convertLargeExp env v0, convertLargeExp env v1)
     | convertLargeExp env (AppExp (span, v0, v1)) =
