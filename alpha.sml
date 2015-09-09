@@ -165,7 +165,18 @@ structure Alpha = struct
         AppExp (span, convertLargeExp env v0, convertExp' env v1)
     | convertLargeExp env (Exp (span, v0)) = Exp (span, convertExp env v0)
   and convertExp env (FunExp (span, v0, v1)) =
-        FunExp (span, convertPat' env v0, convertExp env v1)
+        let
+          val funName = gensym "fun"
+          val env' = List.foldr extendPat env v0
+        in
+          BlockExp (span, [
+            FunStatement (span,
+              Fun (span, funName, [
+                FunBody (span,
+                  convertPat' env' v0,
+                  Exp (span, convertExp env' v1))])),
+            ReturnStatement (span, Exp (span, VarExp (span, funName)))])
+        end
     | convertExp env (EqExp (span, v0, v1)) =
         EqExp (span, convertExp env v0, convertExp env v1)
     | convertExp env (GtExp (span, v0, v1)) =
