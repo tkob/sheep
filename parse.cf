@@ -1,0 +1,110 @@
+token When "when" ;
+token Eq "=" ;
+token At "@" ;
+token Pipe "|" ;
+token UnderScore "_" ;
+token Dots "..." ;
+token LBracket "[" ;
+token RBracket "]" ;
+token Comma "," ;
+token LBrace "{" ;
+token RBrace "}" ;
+token Next "next" ;
+token Bang "!" ;
+token For "for" ;
+token In "in" ;
+token Hat "^" ;
+token Dot "." ;
+token Gt ">" ;
+token Lt "<" ;
+token Ge ">=" ;
+token Le "<=" ;
+token Plus "+" ;
+token Minus "-" ;
+token Star "*" ;
+token Slash "/" ;
+token Colon ":" ;
+token ColonColon "::" ;
+token LParen "(" ;
+token RParen ")" ;
+token Fun "fun" ;
+token Val "val" ;
+token Ident of string ;
+token Integer of int ;
+token String of string ;
+
+Program. Program ::= [TopLevel] [NameTopLevel] ;
+
+separator TopLevel "" ;
+separator NameTopLevel "" ;
+
+NameTopLevel. NameTopLevel ::= Label [TopLevel] ;
+Label. Label ::= ":" Ident ;
+
+PatBody.   TopLevel ::= [Pat] Guard Body ;
+GlobalVal. TopLevel ::= ValDef ;
+GlobalFun. TopLevel ::= FunDef ;
+
+NoGuard. Guard ::= ;
+Guard.   Guard ::= "when" LargeExp ;
+
+Val. ValDef ::= "val" [Pat] "=" LargeExp;
+Fun. FunDef ::= "fun" Ident "@" [FunBody] ;
+FunBody. FunBody ::= [Pat] "=" LargeExp1 ;
+separator nonempty FunBody "|" ;
+
+VarPat.  Pat ::= Ident ;
+WildPat. Pat ::= "_" ;
+DotsPat. Pat ::= "..." ;
+IntPat.  Pat ::= Integer ;
+StrPat.  Pat ::= String ;
+ListPat. Pat ::= "[" [Pat] "]" ;
+
+separator Pat "," ;
+
+Body. Body ::= "{" [Statement] "}" ;
+separator Statement "" ;
+
+FunStatement.   Statement ::= FunDef ;
+ValStatement.   Statement ::= ValDef ;
+NextStatement.  Statement ::= "next" [Pat] "=" LargeExp;
+BangStatement.  Statement ::= "!" LargeExp ; -- single large expression
+BangStatement2. Statement ::= "!" Exp "," [Exp] ; -- two or more expressions
+ForStatement.   Statement ::= "for" [Pat] "in" LargeExp "{" [Statement] "}" ;
+
+-- Large Expressions
+PipeExp. LargeExp  ::= LargeExp "|" LargeExp1 ;
+_.       LargeExp  ::= LargeExp1 ;
+AppExp.  LargeExp1 ::= LargeExp1 "@" [Exp] ;
+Exp.     LargeExp1 ::= Exp ;
+
+-- Expressions
+FunExp.   Exp  ::= "^" [Pat] "." Exp1 ;
+_.        Exp  ::= Exp1 ;
+EqExp.    Exp1 ::= Exp1 "=" Exp2 ;
+GtExp.    Exp1 ::= Exp1 ">" Exp2 ;
+LtExp.    Exp1 ::= Exp1 "<" Exp2 ;
+GeExp.    Exp1 ::= Exp1 ">=" Exp2 ;
+LeExp.    Exp1 ::= Exp1 "<=" Exp2 ;
+_.        Exp1 ::= Exp2 ;
+ConsExp.  Exp2 ::= Exp3 "::" Exp2 ;
+_.        Exp2 ::= Exp3 ;
+AddExp.   Exp3 ::= Exp3 "+" Exp4 ;
+SubExp.   Exp3 ::= Exp3 "-" Exp4 ;
+_.        Exp3 ::= Exp4 ;
+MulExp.   Exp4 ::= Exp4 "*" Exp5 ;
+DivExp.   Exp4 ::= Exp4 "/" Exp5 ;
+_.        Exp4 ::= Exp5 ;
+App2Exp.  Exp5 ::= Exp5 "(" [Exp] ")" ;
+App3Exp.  Exp5 ::= Exp5 "(" ")" ;
+VarExp.   Exp5 ::= Ident ;
+IntExp.   Exp5 ::= Integer ;
+StrExp.   Exp5 ::= String ;
+DotsExp.  Exp5 ::= "..." ;
+ListExp.  Exp5 ::= "[" [Exp] "]" ;
+NilExp.   Exp5 ::= "[" "]" ;
+BlockExp. Exp5 ::= "{" [Statement] "}" ;
+LargeExp. Exp5 ::= "(" LargeExp ")" ;
+separator nonempty Exp "," ;
+
+comment "#" ;
