@@ -83,10 +83,6 @@ structure Alpha = struct
         GlobalFun (span, Fun (span', v0, convertFunBody' env v1))
   and convertGuard env (NoGuard (span)) = NoGuard span
     | convertGuard env (Guard (span, v0)) = Guard (span, convertLargeExp env v0)
-  and convertValDef env (Val (span, v0, v1)) =
-        Val (span, convertPat' env v0, convertLargeExp env v1)
-  and convertFunDef env (Fun (span, v0, v1)) =
-        Fun (span, v0, convertFunBody' env v1)
   and convertFunBody env (FunBody (span, v0, v1)) =
         let
           val env' = List.foldr extendPat env v0
