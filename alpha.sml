@@ -159,6 +159,8 @@ structure Alpha = struct
         in
           x::xs'
         end
+    | convertStatement' env (ClosureStatement (span, v0, v1)::xs) =
+        raise Fail "closure statement must not used explicitly"
   and convertLargeExp env (PipeExp (span, v0, v1)) =
         PipeExp (span, convertLargeExp env v0, convertLargeExp env v1)
     | convertLargeExp env (AppExp (span, v0, v1)) =

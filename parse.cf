@@ -30,6 +30,7 @@ token RParen ")" ;
 token Fun "fun" ;
 token Val "val" ;
 token Return "return" ;
+token Closure "__closure" ; -- tentative
 token Ident of string ;
 token Integer of int ;
 token String of string ;
@@ -74,6 +75,7 @@ BangStatement2.   Statement ::= "!" Exp "," [Exp] ; -- two or more expressions
 ForStatement.     Statement ::= "for" [Pat] "in" LargeExp "{" [Statement] "}" ;
 ReturnStatement.  Statement ::= "return" LargeExp ; -- single large expression
 ReturnStatement2. Statement ::= "return" Exp "," [Exp] ; -- two or more exps
+ClosureStatement. Statement ::= "__closure" Ident "(" [Exp] ")" ; -- tentative
 
 -- Large Expressions
 PipeExp. LargeExp  ::= LargeExp "|" LargeExp1 ;
