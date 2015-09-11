@@ -91,7 +91,10 @@ structure Fv = struct
           fvLargeExp env' v1
         end
 
-  fun fvFunDef (Fun (span, funName, funBodies)) =
-        S.toList (fvFunBody' (S.singleton funName) funBodies)
-
+  fun fvFunDef vars (Fun (span, funName, funBodies)) =
+        let
+          val env = List.foldr (fn (e, s) => S.insert s e) S.empty vars
+        in
+          S.toList (fvFunBody' (S.insert env funName) funBodies)
+        end
 end
