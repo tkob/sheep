@@ -132,7 +132,8 @@ structure Alpha = struct
         raise Fail "closure statement must not used explicitly"
   and convertLargeExp env (PipeExp (span, v0, v1)) =
         PipeExp (span, convertLargeExp env v0, convertLargeExp env v1)
-    | convertLargeExp env (e as AppExp (_, Exp (_, VarExp (_, v0)), v1)) = e
+    | convertLargeExp env (AppExp (span, v0 as Exp (span', VarExp _), v1)) =
+        AppExp (span, convertLargeExp env v0, convertExp' env v1)
     | convertLargeExp env (AppExp (span, v0, v1)) =
         let
           val valName = gensym "val"
@@ -183,7 +184,8 @@ structure Alpha = struct
         MulExp (span, convertExp env v0, convertExp env v1)
     | convertExp env (DivExp (span, v0, v1)) =
         DivExp (span, convertExp env v0, convertExp env v1)
-    | convertExp env (e as App2Exp (span, VarExp (span', v0), v1)) = e
+    | convertExp env (App2Exp (span, v0 as VarExp _, v1)) =
+        App2Exp (span, convertExp env v0, convertExp' env v1)
     | convertExp env (App2Exp (span, v0, v1)) =
         let
           val valName = gensym "val"
@@ -197,7 +199,8 @@ structure Alpha = struct
                 Exp (span, convertExp env v0))),
             ReturnStatement2 (span, app2Exp', [])])
         end
-    | convertExp env (e as App3Exp (span, VarExp (span', v0))) = e
+    | convertExp env (App3Exp (span, v0 as VarExp _)) =
+        App3Exp (span, convertExp env v0)
     | convertExp env (App3Exp (span, v0)) =
         let
           val valName = gensym "val"
