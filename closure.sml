@@ -50,7 +50,7 @@ structure Closure = struct
           List.foldr f (topFuns, []) xs
         end
 
-  fun convert (program, globals) : fundef list * program =
+  fun convert (program, globals) : (fundef * int) list * program =
   let
     fun convertProgram topFuns (Program (span, v0, v1)) =
           convertBinary2 Program (convertTopLevel', convertNameTopLevel')
@@ -119,7 +119,8 @@ structure Closure = struct
                   end
             val funBodies'' = map addFormalFreeVars funBodies'
             (* move the function to top level *)
-            val topFuns'' = Fun (span', funName, funBodies'')::topFuns'
+            val topFuns'' =
+              (Fun (span', funName, funBodies''), length freeVars)::topFuns'
             val (topFuns''', xs') = convertStatement' topFuns'' xs
           in
             (topFuns''', closure::xs')
