@@ -115,7 +115,7 @@ structure Closure = struct
                   let
                     val freeVarPats = map (fn v => VarPat (span', v)) freeVars
                   in
-                    FunBody (span, freeVarPats @ pats, largeExp)
+                    FunBody (span, ListPat (span', freeVarPats)::pats, largeExp)
                   end
             val funBodies'' = map addFormalFreeVars funBodies'
             (* move the function to top level *)
