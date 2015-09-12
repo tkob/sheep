@@ -229,7 +229,6 @@ structure Alpha = struct
           fun f (n, env) = extendEnv ((n, n), env)
           val env = List.foldr f initEnv globals
         in
-          List.app (fn x => (print x; print "\n")) globals;
           convertProgram env program
         end
 end
