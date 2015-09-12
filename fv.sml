@@ -75,7 +75,8 @@ structure Fv = struct
         in
           S.union vars (fvStatement' env xs)
         end
-    | fvStatement' env (ReturnStatement (span, v0)::xs) =
+    | fvStatement' env (ReturnStatement0 span::xs) = S.empty
+    | fvStatement' env (ReturnStatement1 (span, v0)::xs) =
         S.union (fvLargeExp env v0) (fvStatement' env xs)
     | fvStatement' env (ReturnStatement2 (span, v0, v1)::xs) =
         S.union (fvExp env v0) (S.union (fvExp' env v1) (fvStatement' env xs))

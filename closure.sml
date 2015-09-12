@@ -159,9 +159,15 @@ structure Closure = struct
           in
             (topFuns'', x::xs')
           end
-      | convertStatement' topFuns (ReturnStatement (span, v0)::xs) =
+      | convertStatement' topFuns ((x as ReturnStatement0 span)::xs) =
           let
-            val (topFuns', x) = convertUnary ReturnStatement convertLargeExp topFuns (span, v0)
+            val (topFuns', xs') = convertStatement' topFuns xs
+          in
+            (topFuns', x::xs')
+          end
+      | convertStatement' topFuns (ReturnStatement1 (span, v0)::xs) =
+          let
+            val (topFuns', x) = convertUnary ReturnStatement1 convertLargeExp topFuns (span, v0)
             val (topFuns'', xs') = convertStatement' topFuns' xs
           in
             (topFuns'', x::xs')

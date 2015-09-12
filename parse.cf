@@ -74,7 +74,8 @@ NextStatement.    Statement ::= "next" [Pat] "=" LargeExp;
 BangStatement.    Statement ::= "!" LargeExp ; -- single large expression
 BangStatement2.   Statement ::= "!" Exp "," [Exp] ; -- two or more expressions
 ForStatement.     Statement ::= "for" [Pat] "in" LargeExp "{" [Statement] "}" ;
-ReturnStatement.  Statement ::= "return" LargeExp ; -- single large expression
+ReturnStatement0. Statement ::= "return" ;
+ReturnStatement1. Statement ::= "return" LargeExp ; -- single large expression
 ReturnStatement2. Statement ::= "return" Exp "," [Exp] ; -- two or more exps
 ClosureStatement. Statement ::= "__closure" Ident "(" [Exp] ")" ; -- tentative
 

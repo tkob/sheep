@@ -114,9 +114,16 @@ structure Alpha = struct
         in
           x::xs'
         end
-    | convertStatement' env (ReturnStatement (span, v0)::xs) =
+    | convertStatement' env (ReturnStatement0 span::xs) =
         let
-          val x = ReturnStatement (span, convertLargeExp env v0)
+          val x = ReturnStatement0 span
+          val xs' = convertStatement' env xs
+        in
+          x::xs'
+        end
+    | convertStatement' env (ReturnStatement1 (span, v0)::xs) =
+        let
+          val x = ReturnStatement1 (span, convertLargeExp env v0)
           val xs' = convertStatement' env xs
         in
           x::xs'
@@ -148,7 +155,7 @@ structure Alpha = struct
                 Val (span,
                   [VarPat(span, valName)],
                   convertLargeExp env v0)),
-              ReturnStatement (span, appExp')]))
+              ReturnStatement1 (span, appExp')]))
         end
     | convertLargeExp env (Exp (span, v0)) = Exp (span, convertExp env v0)
   and convertExp env (FunExp (span, v0, v1)) =
@@ -162,7 +169,7 @@ structure Alpha = struct
                 FunBody (span,
                   convertPat' env' v0,
                   Exp (span, convertExp env' v1))])),
-            ReturnStatement (span, Exp (span, VarExp (span, funName)))])
+            ReturnStatement1 (span, Exp (span, VarExp (span, funName)))])
         end
     | convertExp env (EqExp (span, v0, v1)) =
         EqExp (span, convertExp env v0, convertExp env v1)
