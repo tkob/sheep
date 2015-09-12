@@ -14,6 +14,7 @@ token Bang "!" ;
 token For "for" ;
 token In "in" ;
 token Hat "^" ;
+token RArrow "->" ;
 token Dot "." ;
 token Gt ">" ;
 token Lt "<" ;
@@ -84,7 +85,7 @@ AppExp.  LargeExp1 ::= LargeExp1 "@" [Exp] ;
 Exp.     LargeExp1 ::= Exp ;
 
 -- Expressions
-FunExp.   Exp  ::= "^" [Pat] "." Exp1 ;
+FunExp.   Exp  ::= "@" [Pat] "->" Exp1 ;
 _.        Exp  ::= Exp1 ;
 EqExp.    Exp1 ::= Exp1 "=" Exp2 ;
 GtExp.    Exp1 ::= Exp1 ">" Exp2 ;
