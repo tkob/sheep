@@ -44,6 +44,8 @@ structure Alpha = struct
         in
           PatBody (span, convertPat' env' v0, convertGuard env' v1, convertBody env' v2)
         end
+    | convertTopLevel env (Begin (span, v0)) = Begin (span, convertBody env v0)
+    | convertTopLevel env (End (span, v0)) = End (span, convertBody env v0)
     | convertTopLevel env (GlobalVal (span, Val (span', v0, v1))) =
         (* keep patterns as are *)
         GlobalVal (span, Val (span', v0, convertLargeExp env v1))

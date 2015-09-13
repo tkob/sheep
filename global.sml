@@ -14,6 +14,8 @@ structure Global = struct
         (* ignore Label *)
         globalNamesOfTopLevel' names v1
   and globalNamesOfTopLevel names (PatBody (span, v0, v1, v2)) = []
+    | globalNamesOfTopLevel names (Begin (span, v0)) = []
+    | globalNamesOfTopLevel names (End (span, v0)) = []
     | globalNamesOfTopLevel names (GlobalVal (span, v0)) =
         globalNamesOfValDef names v0
     | globalNamesOfTopLevel names (GlobalFun (span, v0)) =

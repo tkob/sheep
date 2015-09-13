@@ -66,6 +66,10 @@ structure Closure = struct
     and convertTopLevel topFuns (PatBody (span, v0, v1, v2)) =
           convertTernary PatBody (convertPat', convertGuard, convertBody)
             topFuns (span, v0, v1, v2)
+      | convertTopLevel topFuns (Begin (span, v0)) =
+          convertUnary Begin convertBody topFuns (span, v0)
+      | convertTopLevel topFuns (End (span, v0)) =
+          convertUnary End convertBody topFuns (span, v0)
       | convertTopLevel topFuns (GlobalVal (span, v0)) =
           convertUnary GlobalVal convertValDef topFuns (span, v0)
       | convertTopLevel topFuns (GlobalFun (span, v0)) =

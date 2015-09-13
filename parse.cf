@@ -32,6 +32,8 @@ token Fun "fun" ;
 token Val "val" ;
 token Return "return" ;
 token Closure "__closure" ; -- tentative
+token LBegin "BEGIN" ;
+token LEnd "END" ;
 token Ident of string ;
 token Integer of int ;
 token String of string ;
@@ -45,6 +47,8 @@ NameTopLevel. NameTopLevel ::= Label [TopLevel] ;
 Label. Label ::= ":" Ident ;
 
 PatBody.   TopLevel ::= [Pat] Guard Body ;
+Begin.     TopLevel ::= "BEGIN" Body ;
+End.       TopLevel ::= "END" Body ;
 GlobalVal. TopLevel ::= ValDef ;
 GlobalFun. TopLevel ::= FunDef ;
 

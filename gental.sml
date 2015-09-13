@@ -108,6 +108,10 @@ structure GenTal = struct
           raise Fail "unimplemented"
     and compileTopLevel (PatBody (span, pats, guard, body)) =
           raise Fail "unimplemented"
+      | compileTopLevel (Begin (span, body)) =
+          raise Fail "unimplemented"
+      | compileTopLevel (End (span, body)) =
+          raise Fail "unimplemented"
       | compileTopLevel (GlobalVal (span, (valDef as Val (span', pats, exp)))) =
           let
             val scopeProcName = Alpha.gensym "scope"
