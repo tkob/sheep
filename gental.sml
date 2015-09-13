@@ -77,7 +77,7 @@ structure GenTal = struct
   and varsOf' pats =
         List.foldr (fn (pat, vars) => varsOf pat @ vars) [] pats
 
-  fun compile (fundefs, program, globals, sourcemap) =
+  fun compile (fundefs, program, globalVals, globalFuns, sourcemap) =
   let
     fun emitError (msg, NONE) = (
           emit (PushStr "error");
@@ -311,7 +311,7 @@ structure GenTal = struct
     and compileBinOp (ctx, opcode, v0, v1) =
           (compileExp SV v0; compileExp SV v1; emit opcode; emitMV ctx)
     and compileApp (ctx, funName, exps) = (
-          if Global.mem (funName, globals) then (
+          if Global.mem (funName, globalFuns) then (
             emit (PushStr funName);
             compileExp' SV exps; (* TODO: should create MV context in some sense *)
             emit (InvokeStk (1 + length exps)))

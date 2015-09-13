@@ -233,10 +233,10 @@ structure Alpha = struct
   and convertExp' env xs = map (convertExp env) xs
 
   (* alpha-convert a program *)
-  fun convert (program, globals) =
+  fun convert (program, globalVals, globalFuns) =
         let
           fun f (n, env) = extendEnv ((n, n), env)
-          val env = List.foldr f initEnv globals
+          val env = List.foldr f (List.foldr f initEnv globalVals) globalFuns
         in
           convertProgram env program
         end

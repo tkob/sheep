@@ -22,10 +22,14 @@ structure Global = struct
         globalNamesOfFunDef names v0
   and globalNamesOfValDef names (Val (span, v0, v1)) =
       globalNamesOfPat' names v0
-  and globalNamesOfFunDef names (Fun (span, v0, v1)) =
-        if mem (v0, names) then raise Fail "duplicate variable" else v0::names
-  and globalNamesOfPat names (VarPat (span, v0)) =
-        if mem (v0, names) then raise Fail "duplicate variable" else v0::names
+  and globalNamesOfFunDef (vals, funs) (Fun (span, name, _)) =
+        if mem (name, vals) orelse mem (name, funs) then
+          raise Fail "duplicate variable"
+        else (vals, name::funs)
+  and globalNamesOfPat (vals, funs) (VarPat (span, name)) =
+        if mem (name, vals) orelse mem (name, funs) then
+          raise Fail "duplicate variable"
+        else (name::vals, funs)
     | globalNamesOfPat names (WildPat (span)) = names
     | globalNamesOfPat names (DotsPat (span)) = names
     | globalNamesOfPat names (IntPat (span, v0)) = names
@@ -34,5 +38,5 @@ structure Global = struct
   and globalNamesOfPat' names xs =
         List.foldr (fn (x, names) => globalNamesOfPat names x) names xs
 
-  fun globalNames program = globalNamesOfProgram [] program
+  fun globalNames program = globalNamesOfProgram ([], []) program
 end

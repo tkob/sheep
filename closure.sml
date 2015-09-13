@@ -50,7 +50,7 @@ structure Closure = struct
           List.foldr f (topFuns, []) xs
         end
 
-  fun convert (program, globals) : fundef list * program =
+  fun convert (program, globalVals, globalFuns) : fundef list * program =
   let
     fun convertProgram topFuns (Program (span, v0, v1)) =
           convertBinary2 Program (convertTopLevel', convertNameTopLevel')
@@ -104,7 +104,7 @@ structure Closure = struct
           (* Replace FunStatement with ClosureStatement
              and move the function top level *)
           let
-            val freeVars = Fv.fvFunDef globals funDef
+            val freeVars = Fv.fvFunDef (globalVals @ globalFuns) funDef
             (* a closure is a pair of global function name and actual free vars *)
             val closure =
                   let
