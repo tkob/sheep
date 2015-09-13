@@ -13,9 +13,9 @@ structure Global = struct
   and globalNamesOfNameTopLevel names (NameTopLevel (span, v0, v1)) =
         (* ignore Label *)
         globalNamesOfTopLevel' names v1
-  and globalNamesOfTopLevel names (PatBody (span, v0, v1, v2)) = []
-    | globalNamesOfTopLevel names (Begin (span, v0)) = []
-    | globalNamesOfTopLevel names (End (span, v0)) = []
+  and globalNamesOfTopLevel names (PatBody (span, v0, v1, v2)) = names
+    | globalNamesOfTopLevel names (Begin (span, v0)) = names
+    | globalNamesOfTopLevel names (End (span, v0)) = names
     | globalNamesOfTopLevel names (GlobalVal (span, v0)) =
         globalNamesOfValDef names v0
     | globalNamesOfTopLevel names (GlobalFun (span, v0)) =
@@ -26,10 +26,10 @@ structure Global = struct
         if mem (v0, names) then raise Fail "duplicate variable" else v0::names
   and globalNamesOfPat names (VarPat (span, v0)) =
         if mem (v0, names) then raise Fail "duplicate variable" else v0::names
-    | globalNamesOfPat names (WildPat (span)) = []
-    | globalNamesOfPat names (DotsPat (span)) = []
-    | globalNamesOfPat names (IntPat (span, v0)) = []
-    | globalNamesOfPat names (StrPat (span, v0)) = []
+    | globalNamesOfPat names (WildPat (span)) = names
+    | globalNamesOfPat names (DotsPat (span)) = names
+    | globalNamesOfPat names (IntPat (span, v0)) = names
+    | globalNamesOfPat names (StrPat (span, v0)) = names
     | globalNamesOfPat names (ListPat (span, v0)) = globalNamesOfPat' names v0
   and globalNamesOfPat' names xs =
         List.foldr (fn (x, names) => globalNamesOfPat names x) names xs
