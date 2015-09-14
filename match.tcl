@@ -9,7 +9,7 @@ namespace eval sheepruntime {
     
     proc matchstr {pat val} {
         set tag [lindex $val 0]
-        if {$tag != "#str"} { return 0 }
+        if {$tag != "%str"} { return 0 }
         set str [lindex $val 1]
         return [expr {$pat == $str}]
     }
@@ -49,7 +49,7 @@ namespace eval sheepruntime {
     
     proc matchlist {pat val} {
         set tag [lindex $val 0]
-        if {$tag != "#lst"} { return 0 }
+        if {$tag != "%lst"} { return 0 }
         return [matchvals $pat 0 $val 1]
     }
 
