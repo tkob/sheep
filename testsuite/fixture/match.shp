@@ -1,0 +1,14 @@
+# 0 value
+val = { return }
+
+# 1 value
+val 123 = 123
+val "hello" = "hello"
+val [p, q] = [1, 2]
+val f = @ x -> x
+val _ = 999
+
+# 2 values
+val x, y = { return 1, 2 }
+val z, ... = { return 1, 2, 3 }
+val ... = { return 1, 2, 3, 4 }
