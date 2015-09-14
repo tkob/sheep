@@ -100,19 +100,26 @@ structure GenTal = struct
       | compilePat (ListPat (span, v0)) = "{matchlist {" ^ compilePat' v0 ^ "}}"
     and compilePat' xs = String.concatWith " " (List.map compilePat xs)
 
+    val beginProcName = Alpha.gensym "begin"
+    val endProcName = Alpha.gensym "end"
     fun compileProgram (Program (span, v0, v1)) =
-          (compileTopLevel' v0; compileNameTopLevel' v1)
-    and compileTopLevel' xs = List.app compileTopLevel xs
+          (compileTopLevel' "__default" v0; compileNameTopLevel' v1)
+    and compileTopLevel' label xs = List.app (compileTopLevel label) xs
     and compileNameTopLevel' xs = List.app compileNameTopLevel xs
     and compileNameTopLevel (NameTopLevel (span, Parse.Ast.Label (span', label), topLevels)) =
-          raise Fail "unimplemented"
-    and compileTopLevel (PatBody (span, pats, guard, body)) =
-          raise Fail "unimplemented"
-      | compileTopLevel (Begin (span, body)) =
-          raise Fail "unimplemented"
-      | compileTopLevel (End (span, body)) =
-          raise Fail "unimplemented"
-      | compileTopLevel (GlobalVal (span, (valDef as Val (span', pats, exp)))) =
+          compileTopLevel' label topLevels
+    and compileTopLevel label (PatBody (span, pats, guard, body)) =
+          (* TODO: use pats and guard *)
+          let
+            val patBodyProcName = Alpha.gensym label
+          in
+            proc patBodyProcName ["args"] (fn () => (compileBody body))
+          end
+      | compileTopLevel label (Begin (span, body)) =
+          proc beginProcName [] (fn () => (compileBody body))
+      | compileTopLevel label (End (span, body)) =
+          proc endProcName [] (fn () => (compileBody body))
+      | compileTopLevel label (GlobalVal (span, (valDef as Val (span', pats, exp)))) =
           let
             val scopeProcName = Alpha.gensym "scope"
             val vars = varsOf' pats
@@ -131,7 +138,7 @@ structure GenTal = struct
             (* evaluate in the scope *)
             puts scopeProcName
           end
-      | compileTopLevel (GlobalFun (span, v0)) = compileFunDef v0
+      | compileTopLevel label (GlobalFun (span, v0)) = compileFunDef v0
     and compileGuard (NoGuard span) = raise Fail "unimplemented"
       | compileGuard (Guard (span, largeExp)) = raise Fail "unimplemented"
     and compileValDef (Val (span, pats, exp)) =
@@ -197,7 +204,7 @@ structure GenTal = struct
             emit (Label nomatchLabel)
           end
     and compileBody (Body (span, statements)) =
-          raise Fail "unimplemented"
+          compileStatement' MV (Alpha.gensym "end") statements
     and compileStatement' SV endLabel [] =
           (emitError ("no return value within SV", NONE); emit (Label endLabel))
       | compileStatement' MV endLabel [] =
