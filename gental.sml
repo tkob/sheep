@@ -324,9 +324,9 @@ structure GenTal = struct
             emit (InvokeStk (1 + length exps)))
           else (
             emit (Load funName);   (* load closure record to the stack *)
-            emit (ListIndexImm 0); (* get global function name *)
+            emit (ListIndexImm 1); (* get global function name *)
             emit (Load funName);
-            emit (ListIndexImm 1); (* get free variables *)
+            emit (ListIndexImm 2); (* get free variables *)
             compileExp' SV exps; (* TODO: should create MV context in some sense *)
             emit (InvokeStk (2 + length exps)));
           (* A function returns multiple results. Pick the first within single
