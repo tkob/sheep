@@ -264,8 +264,9 @@ structure GenTal = struct
           puts ("# " ^ showStatement x);
           emit (PushStr "%cls");
           emit (PushStr funName);
+          emit (PushStr "%lst");
           compileExp' SV fvs;
-          emit (List (length fvs));
+          emit (List (1 + length fvs));
           emit (List 3);
           emit (Store funName);
           emit Pop;
