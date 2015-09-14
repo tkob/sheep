@@ -1,0 +1,17 @@
+# global functions
+fun add1 @ x = x + 1
+val 2 = add1 @ 1
+
+fun addxy @ x, y = x + y
+val 3 = addxy @ 1, 2
+
+# local functions
+val = {
+  fun add2 @ x = x + 2
+  val 3 = add2 @ 1
+
+  fun mulxy @ x, y = x * y
+  val 6 = mulxy @ 2, 3
+  return
+}
+
