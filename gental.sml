@@ -241,7 +241,6 @@ structure GenTal = struct
       | compileStatement' MV endLabel ((x as ReturnStatement1 (span, v0))::xs) = (
           puts ("# " ^ showStatement x);
           compileLargeExp MV v0;
-          emit (List 1);
           emit (Jump endLabel);
           compileStatement' MV endLabel xs)
       | compileStatement' SV endLabel ((x as ReturnStatement2 (span, v0, v1))::xs) = (
