@@ -264,14 +264,7 @@ structure GenTal = struct
           compileStatement' MV endLabel xs)
       | compileStatement' ctx endLabel ((x as ClosureStatement (span, funName, fvs))::xs) = (
           puts ("# " ^ showStatement x);
-          emit (PushStr "%cls");
-          emit (PushStr funName);
-          emit (PushStr "%lst");
-          compileExp' SV fvs;
-          emit (List (1 + length fvs));
-          emit (List 3);
-          emit (Store funName);
-          emit Pop;
+          compileClosure (funName, fvs);
           compileStatement' ctx endLabel xs)
     and compileLargeExp ctx (PipeExp (span, largeExp0, largeExp1)) =
           raise Fail "unimplemented"
@@ -351,6 +344,15 @@ structure GenTal = struct
           case ctx of
                SV => emit (ListIndexImm 0)
              | MV => ())
+    and compileClosure (funName, fvExps) = (
+          emit (PushStr "%cls");
+          emit (PushStr funName);
+          emit (PushStr "%lst");
+          compileExp' SV fvExps;
+          emit (List (1 + length fvExps));
+          emit (List 3);
+          emit (Store funName);
+          emit Pop)
   in
     List.map (fn fundef => compileFunDef fundef) fundefs;
     compileProgram program
