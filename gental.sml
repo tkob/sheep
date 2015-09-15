@@ -129,13 +129,7 @@ structure GenTal = struct
             puts ("# " ^ showValDef valDef);
             proc scopeProcName [] (fn () => (
               (* upvar global variables; corresponds to global command *)
-              List.app
-                (fn var => (
-                  emit (PushStr "::");
-                  emit (PushStr var);
-                  emit (Nsupvar var);
-                  emit Pop))
-                vars;
+              List.app importGlobalVal vars;
               compileValDef valDef));
             (* evaluate in the scope *)
             puts scopeProcName
@@ -352,6 +346,11 @@ structure GenTal = struct
           emit (List (1 + length fvExps));
           emit (List 3);
           emit (Store funName);
+          emit Pop)
+    and importGlobalVal name = (
+          emit (PushStr "::");
+          emit (PushStr name);
+          emit (Nsupvar name);
           emit Pop)
   in
     List.map (fn fundef => compileFunDef fundef) fundefs;
