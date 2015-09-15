@@ -324,13 +324,28 @@ structure GenTal = struct
             emit (PushStr funName);
             compileExp' SV exps; (* TODO: should create MV context in some sense *)
             emit (InvokeStk (1 + length exps)))
-          else (
-            emit (Load funName);   (* load closure record to the stack *)
-            emit (ListIndexImm 1); (* get global function name *)
-            emit (Load funName);
-            emit (ListIndexImm 2); (* get free variables *)
-            compileExp' SV exps; (* TODO: should create MV context in some sense *)
-            emit (InvokeStk (2 + length exps)));
+          else
+            let
+              val nofvLabel = Alpha.gensym "nofv"
+              val endLabel = Alpha.gensym "end"
+            in
+              emit (Load funName);   (* load closure record to the stack *)
+              emit (ListIndexImm 1); (* get global function name *)
+              emit (Load funName);
+              emit (ListIndexImm 2); (* get free variables *)
+              emit (PushStr "%lst");
+              emit (Eq);
+              emit (JumpTrue nofvLabel);
+              emit (Load funName);
+              emit (ListIndexImm 2); (* get free variables again *)
+              compileExp' SV exps; (* TODO: should create MV context in some sense *)
+              emit (InvokeStk (2 + length exps));
+              emit (Jump endLabel);
+              emit (Label nofvLabel);
+              compileExp' SV exps; (* TODO: should create MV context in some sense *)
+              emit (InvokeStk (1 + length exps));
+              emit (Label endLabel)
+            end;
           (* A function returns multiple results. Pick the first within single
              value context. *)
           case ctx of
