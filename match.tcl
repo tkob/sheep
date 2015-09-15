@@ -4,7 +4,7 @@ namespace eval sheepruntime {
     namespace export match
 
     proc debug {msg} {
-        if {[info exists env(SHEEP_DEBUG)] && $env(SHEEP_DEBUG)} {
+        if {[info exists ::env(SHEEP_DEBUG)] && $::env(SHEEP_DEBUG)} {
             puts $msg
         }
     }
