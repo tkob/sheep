@@ -19,6 +19,7 @@ structure GenTal = struct
                   | Div
                   | InvokeStk of int
                   | ListIndexImm of int
+                  | ListLength
                   | Nsupvar of string
                   | Label of string
                   | Jump of string
@@ -47,6 +48,7 @@ structure GenTal = struct
     | emit (Div)                = puts ("div")
     | emit (InvokeStk count)    = puts ("invokeStk " ^ Int.toString count)
     | emit (ListIndexImm count) = puts ("listIndexImm " ^ Int.toString count)
+    | emit (ListLength)         = puts ("listLength")
     | emit (Nsupvar varname)    = puts ("nsupvar " ^ varname)
     | emit (Label name)         = puts ("label " ^ name)
     | emit (Jump label)         = puts ("jump " ^ label)
