@@ -7,11 +7,37 @@ val 3 = addxy @ 1, 2
 
 # local functions
 val = {
-  fun add2 @ x = x + 2
-  val 3 = add2 @ 1
+  fun add2 @ x = x + 345
+  val 666 = add2 @ 321
 
   fun mulxy @ x, y = x * y
   val 6 = mulxy @ 2, 3
+
   return
 }
 
+# anonymous functions
+val = {
+  val f = @ x, y -> 2 * x * y
+  val 24 = f @ 3, 4
+
+  val 18 = (@ x, y -> 3 * x * y) @ 2, 3
+  val 18 = @ x, y -> 3 * x * y @ 2, 3 # confusing?
+  val 18 = (@ x, y -> 3 * x * y)(2, 3)
+
+  return
+}
+
+# closures
+val = {
+  fun add @ x, y = x + y
+  fun add3 @ x = add @ x, 3
+  val 4 = add3 @ 1
+
+  fun apply @ g, x = g @ x
+  val 11 = apply @ (@ y -> y + 7), 4
+  val 11 = apply @ @ y -> y + 7, 4 # confusing?
+  val 11 = apply(@ y -> y + 7, 4)
+
+  return
+}
