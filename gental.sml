@@ -122,8 +122,8 @@ structure GenTal = struct
               vars
           end
 
-    val beginProcName = Alpha.gensym "begin"
-    val endProcName = Alpha.gensym "end"
+    val beginProcName = "__BEGIN"
+    val endProcName = "__END"
     fun compileProgram (Program (span, v0, v1)) =
           (compileTopLevel' "__default" v0; compileNameTopLevel' v1)
     and compileTopLevel' label xs = List.app (compileTopLevel label) xs
