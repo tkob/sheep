@@ -103,6 +103,13 @@ structure Fv = struct
           S.toList (fvFunBody' (S.insert env funName) funBodies)
         end
 
+  fun fvValDef vars (Val (span, pats, largeExp)) =
+        let
+          val env = List.foldr (fn (e, s) => S.insert s e) S.empty vars
+        in
+          S.toList (fvLargeExp env largeExp)
+        end
+
   fun fvStatements vars statements =
         let
           val env = List.foldr (fn (e, s) => S.insert s e) S.empty vars
