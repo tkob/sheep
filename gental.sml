@@ -110,31 +110,60 @@ structure GenTal = struct
     and compileNameTopLevel' xs = List.app compileNameTopLevel xs
     and compileNameTopLevel (NameTopLevel (span, Parse.Ast.Label (span', label), topLevels)) =
           compileTopLevel' label topLevels
-    and compileTopLevel label (PatBody (span, pats, guard, body)) =
+    and compileTopLevel label (PatBody (span, pats, guard, Body (span', statements))) =
           (* TODO: use pats and guard *)
           let
             val patBodyProcName = Alpha.gensym label
+            val freeVars = Fv.fvStatements [] statements
           in
-            proc patBodyProcName ["args"] (fn () => (compileBody body))
+            proc patBodyProcName ["args"] (fn () => (
+              List.app importGlobalVal freeVars;
+              compileStatement' MV (Alpha.gensym "end") statements))
           end
-      | compileTopLevel label (Begin (span, body)) =
-          proc beginProcName [] (fn () => (compileBody body))
-      | compileTopLevel label (End (span, body)) =
-          proc endProcName [] (fn () => (compileBody body))
+      | compileTopLevel label (Begin (span, Body (span', statements))) =
+          let
+            val patBodyProcName = Alpha.gensym label
+            val freeVars = Fv.fvStatements [] statements
+          in
+            proc beginProcName [] (fn () => (
+              List.app importGlobalVal freeVars;
+              compileStatement' MV (Alpha.gensym "end") statements))
+          end
+      | compileTopLevel label (End (span, Body (span', statements))) =
+          let
+            val patBodyProcName = Alpha.gensym label
+            val freeVars = Fv.fvStatements [] statements
+          in
+            proc endProcName [] (fn () => (
+              List.app importGlobalVal freeVars;
+              compileStatement' MV (Alpha.gensym "end") statements))
+          end
       | compileTopLevel label (GlobalVal (span, (valDef as Val (span', pats, exp)))) =
           let
             val scopeProcName = Alpha.gensym "scope"
             val vars = varsOf' pats
+            val freeVars = Fv.fvValDef [] valDef
           in
             puts ("# " ^ showValDef valDef);
             proc scopeProcName [] (fn () => (
               (* upvar global variables; corresponds to global command *)
               List.app importGlobalVal vars;
+              List.app importGlobalVal freeVars;
               compileValDef valDef));
             (* evaluate in the scope *)
             puts scopeProcName
           end
-      | compileTopLevel label (GlobalFun (span, v0)) = compileFunDef v0
+      | compileTopLevel label (GlobalFun (_, funDef as Fun (_, funName, _))) =
+          let
+            val scopeProcName = Alpha.gensym "scope"
+          in
+            compileFunDef funDef;
+            proc scopeProcName [] (fn () => (
+              (* every global function has a companion closure *)
+              importGlobalVal funName;
+              compileClosure (funName, [])));
+            puts scopeProcName
+          end
     and compileGuard (NoGuard span) = raise Fail "unimplemented"
       | compileGuard (Guard (span, largeExp)) = raise Fail "unimplemented"
     and compileValDef (Val (span, pats, exp)) =
@@ -164,11 +193,13 @@ structure GenTal = struct
             emit Pop;
             emit (Label endLabel)
           end
-    and compileFunDef (Fun (span, funName, funBodies)) =
+    and compileFunDef (funDef as Fun (span, funName, funBodies)) =
             proc funName ["args"] (fn () =>
               let
                 val endLabel = Alpha.gensym "end"
+                val fvs = Fv.fvFunDef [] funDef
               in
+                List.app importGlobalVal fvs;
                 List.app (compileFunBody endLabel) funBodies;
                 (* go here if no funBodies matched *)
                 emitError ("match failed in function " ^ funName, SOME span);
@@ -199,8 +230,6 @@ structure GenTal = struct
             (* match failed *)
             emit (Label nomatchLabel)
           end
-    and compileBody (Body (span, statements)) =
-          compileStatement' MV (Alpha.gensym "end") statements
     and compileStatement' SV endLabel [] =
           (emitError ("no return value within SV", NONE); emit (Label endLabel))
       | compileStatement' MV endLabel [] =
