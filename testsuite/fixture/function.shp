@@ -5,6 +5,12 @@ val 2 = add1 @ 1
 fun addxy @ x, y = x + y
 val 3 = addxy @ 1, 2
 
+val = {
+  val addone = add1
+  val 25 = add1 @ 24
+  val 25 = addone @ 24
+}
+
 # local functions
 val = {
   fun add2 @ x = x + 345
