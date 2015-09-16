@@ -131,14 +131,21 @@ structure GenTal = struct
     and compileNameTopLevel (NameTopLevel (span, Parse.Ast.Label (span', label), topLevels)) =
           compileTopLevel' label topLevels
     and compileTopLevel label (PatBody (span, pats, guard, Body (span', statements))) =
-          (* TODO: use pats and guard *)
+          (* TODO: use guard *)
           let
             val patBodyProcName = Alpha.gensym label
             val freeVars = Fv.fvStatements [] statements
+            val nomatchLabel = Alpha.gensym "nomatch"
+            val endLabel = Alpha.gensym "end"
           in
             proc patBodyProcName ["args"] (fn () => (
               List.app importGlobalVal freeVars;
-              compileStatement' MV (Alpha.gensym "end") statements))
+              compilePats (pats, (fn () => emit (Load "args")), nomatchLabel);
+              compileStatement' MV (Alpha.gensym "end") statements;
+              emit (Jump endLabel);
+              emit (Label nomatchLabel);
+              emit (PushInt 0);
+              emit (Label endLabel)))
           end
       | compileTopLevel label (Begin (span, Body (span', statements))) =
           let
