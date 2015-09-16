@@ -81,7 +81,11 @@ structure Fv = struct
     | fvStatement' env (ReturnStatement2 (span, v0, v1)::xs) =
         S.union (fvExp env v0) (S.union (fvExp' env v1) (fvStatement' env xs))
     | fvStatement' env (ClosureStatement (span, v0, v1)::xs) =
-        raise Fail "closure statement must not used explicitly"
+        let
+          val env' = S.insert env v0
+        in
+          S.union (fvExp' env v1) (fvStatement' env' xs)
+        end
   and fvFunBody' env xs =
         List.foldr (fn (x, s) => S.union (fvFunBody env x) s) S.empty xs
   and fvFunBody env (FunBody (span, v0, v1)) =
