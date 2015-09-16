@@ -102,6 +102,26 @@ structure GenTal = struct
       | compilePat (ListPat (span, v0)) = "{matchlist {" ^ compilePat' v0 ^ "}}"
     and compilePat' xs = String.concatWith " " (List.map compilePat xs)
 
+    fun compilePats (pats, expf, nomatchLabel) =
+          let
+            val vars = varsOf' pats
+          in
+            (* do match *)
+            emit (PushStr "::sheepruntime::match");
+            emit (PushStr (compilePat' pats));
+            expf ();
+            emit (InvokeStk 3);
+            emit (JumpFalse nomatchLabel);
+            (* match succeeded *)
+            List.app
+              (fn var => (
+                emit (PushStr var);
+                emit (LoadArray "__bindings");
+                emit (Store var);
+                emit Pop))
+              vars
+          end
+
     val beginProcName = Alpha.gensym "begin"
     val endProcName = Alpha.gensym "end"
     fun compileProgram (Program (span, v0, v1)) =
@@ -170,22 +190,8 @@ structure GenTal = struct
           let
             val failLabel = Alpha.gensym "fail"
             val endLabel = Alpha.gensym "end"
-            val vars = varsOf' pats
           in
-            (* do match *)
-            emit (PushStr "::sheepruntime::match");
-            emit (PushStr (compilePat' pats));
-            compileLargeExp MV exp;
-            emit (InvokeStk 3);
-            emit (JumpFalse failLabel);
-            (* update variables if the match has succeeded *)
-            List.app
-              (fn var => (
-                emit (PushStr var);
-                emit (LoadArray "__bindings");
-                emit (Store var);
-                emit Pop))
-              vars;
+            compilePats (pats, (fn () => compileLargeExp MV exp), failLabel);
             emit (Jump endLabel);
             (* emit an error if the match failed *)
             emit (Label failLabel);
@@ -209,22 +215,8 @@ structure GenTal = struct
     and compileFunBody endLabel (FunBody (span, pats, largeExp)) =
           let
             val nomatchLabel = Alpha.gensym "nomatch"
-            val vars = varsOf' pats
           in
-            (* do match *)
-            emit (PushStr "::sheepruntime::match");
-            emit (PushStr (compilePat' pats));
-            emit (Load "args");
-            emit (InvokeStk 3);
-            emit (JumpFalse nomatchLabel);
-            (* match succeeded *)
-            List.app
-              (fn var => (
-                emit (PushStr var);
-                emit (LoadArray "__bindings");
-                emit (Store var);
-                emit Pop))
-              vars;
+            compilePats (pats, (fn () => emit (Load "args")), nomatchLabel);
             compileLargeExp MV largeExp;
             emit (Jump endLabel);
             (* match failed *)
