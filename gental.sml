@@ -245,10 +245,23 @@ structure GenTal = struct
           compileStatement' ctx endLabel xs)
       | compileStatement' ctx endLabel (NextStatement (span, pats, largeExp)::xs) =
           raise Fail "unimplemented"
-      | compileStatement' ctx endLabel (BangStatement (span, largeExp)::xs) =
-          raise Fail "unimplemented"
-      | compileStatement' ctx endLabel (BangStatement2 (span, exp, exps)::xs) =
-          raise Fail "unimplemented"
+      | compileStatement' ctx endLabel (BangStatement (span, largeExp)::xs) = (
+          importNS ("::sheepruntime", "__!");
+          compileLargeExp MV largeExp;
+          emit (Lappend "__!");
+          emit Pop;
+          compileStatement' ctx endLabel xs)
+      | compileStatement' ctx endLabel (BangStatement2 (span, exp, exps)::xs) = (
+          importNS ("::sheepruntime", "__!");
+          compileExp MV exp;
+          List.app
+              (fn exp => (
+                  compileExp MV exp;
+                  emit ListConcat))
+              exps;
+          emit (Lappend "__!");
+          emit Pop;
+          compileStatement' ctx endLabel xs)
       | compileStatement' ctx endLabel (ForStatement (span, pats, largeExp, statements)::xs) =
           raise Fail "unimplemented"
       | compileStatement' SV endLabel ((x as ReturnStatement0 span)::xs) = (
