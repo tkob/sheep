@@ -20,6 +20,7 @@ structure GenTal = struct
                   | InvokeStk of int
                   | ListIndexImm of int
                   | ListLength
+                  | ListConcat
                   | Lappend of string
                   | Nsupvar of string
                   | Label of string
@@ -50,6 +51,7 @@ structure GenTal = struct
     | emit (InvokeStk count)    = puts ("invokeStk " ^ Int.toString count)
     | emit (ListIndexImm count) = puts ("listIndexImm " ^ Int.toString count)
     | emit (ListLength)         = puts ("listLength")
+    | emit (ListConcat)         = puts ("listConcat")
     | emit (Lappend varname)    = puts ("lappend " ^ varname)
     | emit (Nsupvar varname)    = puts ("nsupvar " ^ varname)
     | emit (Label name)         = puts ("label " ^ name)
