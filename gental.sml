@@ -384,6 +384,11 @@ structure GenTal = struct
           emit (PushStr name);
           emit (Nsupvar name);
           emit Pop)
+    and importNS (ns, name) = (
+          emit (PushStr ns);
+          emit (PushStr name);
+          emit (Nsupvar name);
+          emit Pop)
   in
     List.map (fn fundef => compileFunDef fundef) fundefs;
     compileProgram program
