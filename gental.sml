@@ -294,11 +294,10 @@ structure GenTal = struct
           List.app (fn _ => emit Pop) v1;
           emit (Jump endLabel);
           compileStatement' SV endLabel xs)
-      | compileStatement' MV endLabel ((x as ReturnStatement2 (span, v0, v1))::xs) = (
+      | compileStatement' MV endLabel ((x as ReturnStatement2 (span, exp, exps))::xs) = (
           puts ("# " ^ showStatement x);
-          compileExp SV v0;
-          compileExp' SV v1; (* TODO: should create MV context in some sense *)
-          emit (List (1 + length v1));
+          compileExp MV exp;
+          List.app (fn exp => (compileExp MV exp; emit ListConcat)) exps;
           emit (Jump endLabel);
           compileStatement' MV endLabel xs)
       | compileStatement' ctx endLabel ((x as ClosureStatement (span, funName, fvs))::xs) = (

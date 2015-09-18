@@ -1,0 +1,6 @@
+fun two @ x = { return x, x }
+
+val 1, 1 = { return two @ 1 }
+val 1, 1 = { return two(1) }
+val 1, 2, 2, 3 = { return 1, two(2), 3 }
+val 1, 2, 2, 3, 3, 4 = { return 1, two(2), two(3), 4 }

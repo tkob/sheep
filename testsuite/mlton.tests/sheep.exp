@@ -1,0 +1,22 @@
+# vim: set filetype=tcl :
+
+# build
+
+spawn mlton main.mlb
+exitstatus should be 0 or "building failed"
+
+spawn sheep testsuite/fixture/match.shp
+expect eof
+exitstatus should be 0
+
+spawn sheep testsuite/fixture/function.shp
+expect eof
+exitstatus should be 0
+
+spawn sheep testsuite/fixture/bang.shp
+expect eof
+exitstatus should be 0
+
+spawn sheep testsuite/fixture/return.shp
+expect eof
+exitstatus should be 0
