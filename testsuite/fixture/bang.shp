@@ -1,0 +1,15 @@
+fun f @ x = { return x, x, x }
+
+BEGIN {
+  ! "hello"
+  ! "hello", "world"
+  ! "hello", "world", 2, "!"
+  ! f @ "cheer"
+  ! "cheer", f("cheer")
+  ! "(", f("cheer"), ")"
+}
+
+END {
+  ! "goodbye"
+  ! "goodbye", "world", "!"
+}
