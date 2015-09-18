@@ -1,0 +1,27 @@
+#!/bin/sh
+# \
+exec tclsh "$0" ${1+"$@"}
+
+namespace eval sheepruntime {
+    proc emitbang {} {
+        variable __!
+        foreach line ${__!} {
+            puts $line
+        }
+        set __! [list]
+    }
+}
+
+source match.tcl
+
+eval [exec main [lindex $argv 0]]
+
+if {[llength [info procs __BEGIN]]} {
+    __BEGIN
+    ::sheepruntime::emitbang
+}
+
+if {[llength [info procs __END]]} {
+    __END
+    ::sheepruntime::emitbang
+}
