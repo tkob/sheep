@@ -108,7 +108,7 @@ structure GenTal = struct
       | compilePat (ListPat (span, v0)) = "{matchlist {" ^ compilePat' v0 ^ "}}"
     and compilePat' xs = String.concatWith " " (List.map compilePat xs)
 
-    fun compilePats (pats, expf, nomatchLabel) =
+    fun compilePatsLocal (pats, expf, nomatchLabel) =
           let
             val vars = varsOf' pats
           in
@@ -146,7 +146,7 @@ structure GenTal = struct
           in
             proc patBodyProcName ["args"] (fn () => (
               List.app importGlobalVal freeVars;
-              compilePats (pats, (fn () => emit (Load "args")), nomatchLabel);
+              compilePatsLocal (pats, (fn () => emit (Load "args")), nomatchLabel);
               compileStatement' MV (Alpha.gensym "end") statements;
               emit (Jump endLabel);
               emit (Label nomatchLabel);
@@ -204,7 +204,7 @@ structure GenTal = struct
             val failLabel = Alpha.gensym "fail"
             val endLabel = Alpha.gensym "end"
           in
-            compilePats (pats, (fn () => compileLargeExp MV exp), failLabel);
+            compilePatsLocal (pats, (fn () => compileLargeExp MV exp), failLabel);
             emit (Jump endLabel);
             (* emit an error if the match failed *)
             emit (Label failLabel);
@@ -229,7 +229,7 @@ structure GenTal = struct
           let
             val nomatchLabel = Alpha.gensym "nomatch"
           in
-            compilePats (pats, (fn () => emit (Load "args")), nomatchLabel);
+            compilePatsLocal (pats, (fn () => emit (Load "args")), nomatchLabel);
             compileLargeExp MV largeExp;
             emit (Jump endLabel);
             (* match failed *)
