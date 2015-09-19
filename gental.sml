@@ -17,7 +17,9 @@ structure GenTal = struct
                   | Sub
                   | Mult
                   | Div
+                  | Incr of string
                   | InvokeStk of int
+                  | ListIndex
                   | ListIndexImm of int
                   | ListLength
                   | ListConcat
@@ -49,7 +51,9 @@ structure GenTal = struct
     | emit (Sub)                = puts ("sub")
     | emit (Mult)               = puts ("mult")
     | emit (Div)                = puts ("div")
+    | emit (Incr varname)       = puts ("incr " ^ varname)
     | emit (InvokeStk count)    = puts ("invokeStk " ^ Int.toString count)
+    | emit (ListIndex)          = puts ("listIndex")
     | emit (ListIndexImm count) = puts ("listIndexImm " ^ Int.toString count)
     | emit (ListLength)         = puts ("listLength")
     | emit (ListConcat)         = puts ("listConcat")
