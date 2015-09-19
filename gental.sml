@@ -131,6 +131,22 @@ structure GenTal = struct
               vars
           end
 
+    fun compilePatsArray (pats, expf, arrayName, nomatchLabel) =
+          let
+            val vars = varsOf' pats
+          in
+            compilePats (pats, expf, nomatchLabel);
+            (* match succeeded *)
+            List.app
+              (fn var => (
+                emit (PushStr var);
+                emit (PushStr var);
+                emit (LoadArray "__bindings");
+                emit (StoreArray arrayName);
+                emit Pop))
+              vars
+          end
+
     val beginProcName = "__BEGIN"
     val endProcName = "__END"
     fun compileProgram (Program (span, v0, v1)) =
