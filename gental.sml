@@ -17,7 +17,6 @@ structure GenTal = struct
                   | Sub
                   | Mult
                   | Div
-                  | Incr of string
                   | InvokeStk of int
                   | ListIndex
                   | ListIndexImm of int
@@ -31,6 +30,8 @@ structure GenTal = struct
                   | JumpFalse of string
                   | LoadArray of string
                   | StoreArray of string
+                  | Incr of string
+                  | IncrImm of string * int
 
   datatype context = SV | MV (* multi-value context *)
 
@@ -51,7 +52,6 @@ structure GenTal = struct
     | emit (Sub)                = puts ("sub")
     | emit (Mult)               = puts ("mult")
     | emit (Div)                = puts ("div")
-    | emit (Incr varname)       = puts ("incr " ^ varname)
     | emit (InvokeStk count)    = puts ("invokeStk " ^ Int.toString count)
     | emit (ListIndex)          = puts ("listIndex")
     | emit (ListIndexImm count) = puts ("listIndexImm " ^ Int.toString count)
@@ -65,6 +65,9 @@ structure GenTal = struct
     | emit (JumpFalse label)    = puts ("jumpFalse " ^ label)
     | emit (LoadArray varname)  = puts ("loadArray " ^ varname)
     | emit (StoreArray varname) = puts ("storeArray " ^ varname)
+    | emit (Incr varname)       = puts ("incr " ^ varname)
+    | emit (IncrImm (varName, imm8)) =
+        puts ("incrImm " ^ varName ^ " " ^ Int.toString imm8)
 
   fun emitMV SV = ()
     | emitMV MV = emit (List 1)
