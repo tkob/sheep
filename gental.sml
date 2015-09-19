@@ -302,7 +302,62 @@ structure GenTal = struct
           emit Pop;
           compileStatement' ctx endLabel xs)
       | compileStatement' ctx endLabel (ForStatement (span, pats, largeExp, statements)::xs) =
-          raise Fail "unimplemented"
+          let
+            val list = Alpha.gensym "__list"
+            val len = Alpha.gensym "__len"
+            val i = Alpha.gensym "__i"
+            val loopStartLabel = Alpha.gensym "loopstart"
+            val loopEndLabel = Alpha.gensym "loopend"
+            val nomatchLabel = Alpha.gensym "nomatch"
+            val endLabel' = Alpha.gensym "end"
+          in
+            (* __list = largeExp; __len = length largeExp *)
+            compileLargeExp SV largeExp;
+            emit (Store list);
+            emit (ListLength);
+            emit (Store len);
+            emit Pop;
+            (* __i = 0 *)
+            emit (PushInt 0);
+            emit (Store i);
+            emit Pop;
+            (* loop begins *)
+            emit (Label loopStartLabel);
+
+            compilePatsLocal (
+              pats,
+              fn () => (
+                List.app
+                  (fn _ => (
+                    (* create a sublist whose length matched the number of patterns *)
+                    emit (Load list);
+                    emit (IncrImm (i, 1));
+                    emit ListIndex;
+                    emit (List (length pats))))
+                  pats),
+              nomatchLabel);
+
+            (* TODO: 'return' inside for loop means just 'continue' for now *)
+            compileStatement' MV endLabel' statements;
+            emit Pop;
+
+            (* continue if there remains enough items to match *)
+            emit (Load i);
+            emit (PushInt (length pats));
+            emit Add;
+            emit (Load len);
+            emit Lt;
+            emit (JumpTrue loopStartLabel);
+            emit (Jump loopEndLabel);
+
+            (* emit an error if the match failed *)
+            emit (Label nomatchLabel);
+            emitError ("match failed", SOME span);
+            emit Pop;
+
+            emit (Label loopEndLabel);
+            compileStatement' ctx endLabel xs
+          end
       | compileStatement' SV endLabel ((x as ReturnStatement0 span)::xs) = (
           puts ("# " ^ showStatement x);
           emitError ("no return value with in single value context", SOME span);
