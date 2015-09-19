@@ -28,6 +28,7 @@ structure GenTal = struct
                   | JumpTrue of string
                   | JumpFalse of string
                   | LoadArray of string
+                  | StoreArray of string
 
   datatype context = SV | MV (* multi-value context *)
 
@@ -59,6 +60,7 @@ structure GenTal = struct
     | emit (JumpTrue label)     = puts ("jumpTrue " ^ label)
     | emit (JumpFalse label)    = puts ("jumpFalse " ^ label)
     | emit (LoadArray varname)  = puts ("loadArray " ^ varname)
+    | emit (StoreArray varname) = puts ("storeArray " ^ varname)
 
   fun emitMV SV = ()
     | emitMV MV = emit (List 1)
