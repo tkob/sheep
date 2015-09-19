@@ -265,7 +265,18 @@ structure GenTal = struct
           compileValDef valDef;
           compileStatement' ctx endLabel xs)
       | compileStatement' ctx endLabel (NextStatement (span, pats, largeExp)::xs) =
-          raise Fail "unimplemented"
+          let
+            val failLabel = Alpha.gensym "fail"
+            val endLabel = Alpha.gensym "end"
+          in
+            compilePatsArray (pats, (fn () => compileLargeExp MV largeExp), "__next", failLabel);
+            emit (Jump endLabel);
+            (* emit an error if the match failed *)
+            emit (Label failLabel);
+            emitError ("match failed", SOME span);
+            emit Pop;
+            emit (Label endLabel)
+          end
       | compileStatement' ctx endLabel (BangStatement (span, largeExp)::xs) = (
           importNS ("::sheepruntime", "__!");
           compileLargeExp MV largeExp;
