@@ -108,16 +108,19 @@ structure GenTal = struct
       | compilePat (ListPat (span, v0)) = "{matchlist {" ^ compilePat' v0 ^ "}}"
     and compilePat' xs = String.concatWith " " (List.map compilePat xs)
 
+    fun compilePats (pats, expf, nomatchLabel) = (
+          (* do match *)
+          emit (PushStr "::sheepruntime::match");
+          emit (PushStr (compilePat' pats));
+          expf ();
+          emit (InvokeStk 3);
+          emit (JumpFalse nomatchLabel))
+
     fun compilePatsLocal (pats, expf, nomatchLabel) =
           let
             val vars = varsOf' pats
           in
-            (* do match *)
-            emit (PushStr "::sheepruntime::match");
-            emit (PushStr (compilePat' pats));
-            expf ();
-            emit (InvokeStk 3);
-            emit (JumpFalse nomatchLabel);
+            compilePats (pats, expf, nomatchLabel);
             (* match succeeded *)
             List.app
               (fn var => (
