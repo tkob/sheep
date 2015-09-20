@@ -499,6 +499,21 @@ structure GenTal = struct
           emit (PushStr name);
           emit (Nsupvar name);
           emit Pop)
+    and untagList failLabel = (
+          emit Dup;
+          emit (ListIndexImm 0);
+          emit (PushStr "%lst");
+          emit Eq;
+          emit (JumpFalse failLabel);
+          emit (PushStr "lrange");
+          emit (Reverse 2);
+          emit (PushInt 1);
+          emit (PushStr "end");
+          emit (InvokeStk 4))
+    and tagList () = (
+          emit (PushStr "%lst");
+          emit (Reverse 2);
+          emit ListConcat)
   in
     List.map (fn fundef => compileFunDef fundef) fundefs;
     compileProgram program
