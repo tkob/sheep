@@ -189,7 +189,8 @@ structure GenTal = struct
               emit (Jump endLabel);
               emit (Label nomatchLabel);
               emit (PushInt 0);
-              emit (Label endLabel)))
+              emit (Label endLabel)));
+            puts ("lappend ::sheepruntime::__patbody(" ^ label ^ ") " ^ patBodyProcName)
           end
       | compileTopLevel label (Begin (span, Body (span', statements))) =
           let
