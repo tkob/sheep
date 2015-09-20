@@ -171,7 +171,6 @@ structure GenTal = struct
     and compileNameTopLevel (NameTopLevel (span, Parse.Ast.Label (span', label), topLevels)) =
           compileTopLevel' label topLevels
     and compileTopLevel label (PatBody (span, pats, guard, Body (span', statements))) =
-          (* TODO: use guard *)
           let
             val patBodyProcName = Alpha.gensym label
             val freeVars = Fv.fvStatements [] statements
@@ -181,6 +180,11 @@ structure GenTal = struct
             proc patBodyProcName ["args"] (fn () => (
               List.app importGlobalVal freeVars;
               compilePatsLocal (pats, (fn () => emit (Load "args")), nomatchLabel);
+              case guard of
+                   NoGuard _ => ()
+                 | Guard (span'', largeExp) => (
+                     compileLargeExp SV largeExp;
+                     emit (JumpFalse nomatchLabel));
               compileStatement' MV (Alpha.gensym "end") statements;
               emit (Jump endLabel);
               emit (Label nomatchLabel);
@@ -231,8 +235,6 @@ structure GenTal = struct
               compileClosure (funName, [])));
             puts scopeProcName
           end
-    and compileGuard (NoGuard span) = raise Fail "unimplemented"
-      | compileGuard (Guard (span, largeExp)) = raise Fail "unimplemented"
     and compileValDef (Val (span, pats, exp)) =
           let
             val failLabel = Alpha.gensym "fail"
