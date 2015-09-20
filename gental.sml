@@ -4,6 +4,8 @@ structure GenTal = struct
 
   datatype opcode = PushInt of int
                   | PushStr of string
+                  | PushTrue
+                  | PushFalse
                   | Pop
                   | Load of string
                   | Store of string
@@ -41,6 +43,8 @@ structure GenTal = struct
 
   fun emit (PushInt value)      = puts ("push " ^ Int.toString value)
     | emit (PushStr value)      = puts ("push {" ^ value ^ "}")
+    | emit (PushTrue)           = puts ("push t")
+    | emit (PushFalse)          = puts ("push f")
     | emit (Pop)                = puts ("pop")
     | emit (Load varname)       = puts ("load " ^ varname)
     | emit (Store varname)      = puts ("store " ^ varname)
