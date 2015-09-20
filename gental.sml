@@ -7,6 +7,8 @@ structure GenTal = struct
                   | Pop
                   | Load of string
                   | Store of string
+                  | Dup
+                  | Reverse of int
                   | List of int
                   | Eq
                   | Gt
@@ -42,6 +44,8 @@ structure GenTal = struct
     | emit (Pop)                = puts ("pop")
     | emit (Load varname)       = puts ("load " ^ varname)
     | emit (Store varname)      = puts ("store " ^ varname)
+    | emit (Dup)                = puts ("dup")
+    | emit (Reverse count)      = puts ("reverse " ^ Int.toString count)
     | emit (List len)           = puts ("list " ^ Int.toString len)
     | emit (Eq)                 = puts ("eq")
     | emit (Gt)                 = puts ("gt")
