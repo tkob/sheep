@@ -415,11 +415,16 @@ structure GenTal = struct
       | compileLargeExp ctx (Exp (span, v0)) = compileExp ctx v0
     and compileExp ctx (FunExp (span, v0, v1)) =
           raise Fail "FunExp should be eliminated at Alpha phase"
-      | compileExp ctx (EqExp (span, v0, v1)) = compileBinOp (ctx, Eq, v0, v1)
-      | compileExp ctx (GtExp (span, v0, v1)) = compileBinOp (ctx, Gt, v0, v1)
-      | compileExp ctx (LtExp (span, v0, v1)) = compileBinOp (ctx, Lt, v0, v1)
-      | compileExp ctx (GeExp (span, v0, v1)) = compileBinOp (ctx, Ge, v0, v1)
-      | compileExp ctx (LeExp (span, v0, v1)) = compileBinOp (ctx, Le, v0, v1)
+      | compileExp ctx (EqExp (span, v0, v1)) =
+          compileBinOpBool (ctx, Eq, v0, v1)
+      | compileExp ctx (GtExp (span, v0, v1)) =
+          compileBinOpBool (ctx, Gt, v0, v1)
+      | compileExp ctx (LtExp (span, v0, v1)) =
+          compileBinOpBool (ctx, Lt, v0, v1)
+      | compileExp ctx (GeExp (span, v0, v1)) =
+          compileBinOpBool (ctx, Ge, v0, v1)
+      | compileExp ctx (LeExp (span, v0, v1)) =
+          compileBinOpBool (ctx, Le, v0, v1)
       | compileExp ctx (ConsExp (span, v0, v1)) =
           let
             val endLabel = Alpha.gensym "end"
@@ -468,8 +473,12 @@ structure GenTal = struct
       | compileExp ctx (LargeExp (span, v0)) = compileLargeExp ctx v0
     and compileExp' ctx xs = List.app (compileExp ctx) xs
     (* utility functions follow *)
+    and compileBinOp' (ctx, opcode, v0, v1, postf) =
+          (compileExp SV v0; compileExp SV v1; emit opcode; postf (); emitMV ctx)
     and compileBinOp (ctx, opcode, v0, v1) =
-          (compileExp SV v0; compileExp SV v1; emit opcode; emitMV ctx)
+          compileBinOp' (ctx, opcode, v0, v1, fn () => ())
+    and compileBinOpBool (ctx, opcode, v0, v1) =
+          compileBinOp' (ctx, opcode, v0, v1, tagBool)
     and compileApp (ctx, funName, exps) = (
           if Global.mem (funName, globalFuns) then (
             emit (PushStr funName);
@@ -536,6 +545,18 @@ structure GenTal = struct
           emit (PushStr "%lst");
           emit (Reverse 2);
           emit ListConcat)
+    and tagBool () =
+          let
+            val endLabel = Alpha.gensym "end"
+            val falseLabel = Alpha.gensym "false"
+          in
+            emit (JumpFalse falseLabel);
+            emit PushTrue;
+            emit (Jump endLabel);
+            emit (Label falseLabel);
+            emit PushFalse;
+            emit (Label endLabel)
+          end
   in
     List.map (fn fundef => compileFunDef fundef) fundefs;
     compileProgram program
