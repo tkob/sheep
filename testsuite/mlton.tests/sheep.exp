@@ -20,3 +20,7 @@ exitstatus should be 0
 spawn sheep testsuite/fixture/return.shp
 expect eof
 exitstatus should be 0
+
+spawn sheep testsuite/fixture/binop.shp
+expect eof
+exitstatus should be 0
