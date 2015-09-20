@@ -416,7 +416,25 @@ structure GenTal = struct
       | compileExp ctx (LtExp (span, v0, v1)) = compileBinOp (ctx, Lt, v0, v1)
       | compileExp ctx (GeExp (span, v0, v1)) = compileBinOp (ctx, Ge, v0, v1)
       | compileExp ctx (LeExp (span, v0, v1)) = compileBinOp (ctx, Le, v0, v1)
-      | compileExp ctx (ConsExp (span, v0, v1)) = raise Fail "unimplemented"
+      | compileExp ctx (ConsExp (span, v0, v1)) =
+          let
+            val endLabel = Alpha.gensym "end"
+            val failLabel = Alpha.gensym "fail"
+          in
+            compileExp SV v0;
+            emit (List 1);
+            compileExp SV v1;
+            untagList failLabel;
+            emit ListConcat;
+            tagList ();
+            emit (Jump endLabel);
+            emit (Label failLabel);
+            emit Pop;
+            emitError ("right hand of :: is not a list", SOME span);
+            emit Pop;
+            emit (Label endLabel);
+            emitMV ctx
+          end
       | compileExp ctx (AddExp (span, v0, v1)) = compileBinOp (ctx, Add, v0, v1)
       | compileExp ctx (SubExp (span, v0, v1)) = compileBinOp (ctx, Sub, v0, v1)
       | compileExp ctx (MulExp (span, v0, v1)) = compileBinOp (ctx, Mult, v0, v1)
