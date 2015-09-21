@@ -186,9 +186,11 @@ structure GenTal = struct
                      compileLargeExp SV largeExp;
                      emit (JumpFalse nomatchLabel));
               compileStatement' MV (Alpha.gensym "end") statements;
+              emit Pop;
+              emit PushTrue;
               emit (Jump endLabel);
               emit (Label nomatchLabel);
-              emit (PushInt 0);
+              emit PushFalse;
               emit (Label endLabel)));
             puts ("lappend ::sheepruntime::__patbody(" ^ label ^ ") " ^ patBodyProcName)
           end
