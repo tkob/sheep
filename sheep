@@ -59,16 +59,19 @@ namespace eval sheepruntime {
         set patslen [llength $pats]
         set valslen [llength $vals]
         if {$pidx == $patslen} {
+            # exhausted patterns, no match if values remain
             return [expr {$vidx == $valslen}]
         }
-        if {!($vidx < $valslen)} {
-            return 0
-        }
         set patscar [lindex $pats $pidx]
-        set valscar [lindex $vals $vidx]
+        # dots matches everything including zero-length values 
         if {$patscar == "matchdots"} {
             return 1
         }
+        # exhaust values?
+        if {!($vidx < $valslen)} {
+            return 0
+        }
+        set valscar [lindex $vals $vidx]
         if {![{*}$patscar $valscar]} {
             return 0
         }
