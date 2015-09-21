@@ -3,9 +3,17 @@
 exec tclsh "$0" ${1+"$@"}
 
 package require Tcl 8.6
+package require textutil
 
 namespace eval sheepruntime {
     namespace export match emitbang
+
+    variable __! {}
+    variable __patbody
+    variable agenda {}
+    variable record {}
+    variable infileid
+    variable readproc
 
     proc debug {msg} {
         if {[info exists ::env(SHEEP_DEBUG)] && $::env(SHEEP_DEBUG)} {
@@ -93,13 +101,60 @@ namespace eval sheepruntime {
         }
         set __! [list]
     }
+
+    proc read {} {
+        variable agenda
+        variable record
+        variable readproc
+        if {[llength $agenda]} {
+            set record [lindex $agenda 0]
+            set agenda [lrange $agenda 1 end]
+            return 1
+        } else {
+            $readproc
+        }
+    }
+
+    proc awkread {} {
+        variable record
+        variable infileid
+        if {[gets $infileid line] >= 0} {
+            set line [string trim $line]
+            foreach field [::textutil::splitx $line {\s+}] {
+                lappend record [list %str $field]
+            }
+            debug $record
+            return 1
+        } else {
+            return 0
+        }
+    }
 }
+
+set ::sheepruntime::infileid stdin
+set ::sheepruntime::readproc awkread
 
 eval [exec main [lindex $argv 0]]
 
 if {[llength [info procs __BEGIN]]} {
     __BEGIN
     ::sheepruntime::emitbang
+}
+
+set ::sheepruntime::__mode __default
+
+while {[info exists sheepruntime::__patbody($::sheepruntime::__mode)]} {
+    ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
+    if {[::sheepruntime::read]} {
+        foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
+            if {[${__pb} {*}$::sheepruntime::record]} {
+                ::sheepruntime::emitbang
+                break
+            }
+        }
+    } else {
+        break
+    }
 }
 
 if {[llength [info procs __END]]} {
