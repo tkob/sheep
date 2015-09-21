@@ -145,6 +145,8 @@ set ::sheepruntime::__mode __default
 
 while {[info exists sheepruntime::__patbody($::sheepruntime::__mode)]} {
     ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
+    set ::sheepruntime::__! {}
+    set ::sheepruntime::record {}
     if {[::sheepruntime::read]} {
         foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
             if {[${__pb} {*}$::sheepruntime::record]} {
