@@ -468,8 +468,11 @@ structure GenTal = struct
       | compileExp ctx (DotsExp (span)) = raise Fail "unimplemented"
       | compileExp ctx (ListExp (span, exps)) = (
           emit (PushStr "%lst");
-          compileExp' SV exps; (* TODO: should create MV context in some sense *)
-          emit (List (1 + length exps));
+          List.app
+              (fn exp => (
+                  compileExp MV exp;
+                  emit ListConcat))
+              exps;
           emitMV ctx)
       | compileExp ctx (NilExp (span)) =
           (emit (PushStr "%lst"); emit (List 1); emitMV ctx)
