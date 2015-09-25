@@ -103,6 +103,7 @@ namespace eval sheepruntime {
         variable writeproc
         foreach line ${__!} {
             $writeproc $line
+            puts ""
         }
         set __! [list]
     }
@@ -139,17 +140,15 @@ namespace eval sheepruntime {
         foreach field $record {
             set tag [lindex $field 0]
             if {$tag == "%cls"} {
-                puts -nonewline [lindex $field 1]
+                puts -nonewline "[lindex $field 1] "
             } elseif {$tag == "%lst"} {
                 awkwrite [lrange $field 1 end]
             } elseif {$tag == "%str"} {
-                puts -nonewline [lindex $field 1]
+                puts -nonewline "[lindex $field 1] "
             } else {
-                puts -nonewline $field
+                puts -nonewline "$field "
             }
-            puts -nonewline " "
         }
-        puts ""
     }
 }
 
