@@ -4,6 +4,7 @@ exec tclsh "$0" ${1+"$@"}
 
 package require Tcl 8.6
 package require textutil
+package require csv
 
 namespace eval sheepruntime {
     namespace export match emitbang
@@ -149,6 +150,28 @@ namespace eval sheepruntime {
                 puts -nonewline "$field "
             }
         }
+    }
+
+    proc flatappend {var record} {
+        upvar $var l
+        foreach field $record {
+            set tag [lindex $field 0]
+            if {$tag == "%cls"} {
+                lappend l [lindex $field 1]
+            } elseif {$tag == "%lst"} {
+                flatappend l [lrange $field 1 end]
+            } elseif {$tag == "%str"} {
+                lappend l [lindex $field 1]
+            } else {
+                lappend l $field
+            }
+        }
+    }
+
+    proc csvwrite {record} {
+        set l [list]
+        flatappend l $record
+        puts -nonewline [::csv::join $l]
     }
 }
 
