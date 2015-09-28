@@ -465,6 +465,8 @@ structure GenTal = struct
       | compileExp ctx (IntExp (span, v0)) = (emit (PushInt v0); emitMV ctx)
       | compileExp ctx (StrExp (span, v0)) =
           (emit (PushStr "%str"); emit (PushStr v0); emit (List 2); emitMV ctx)
+      | compileExp ctx (TrueExp (span)) = (emit PushTrue; emitMV ctx)
+      | compileExp ctx (FalseExp (span)) = (emit PushFalse; emitMV ctx)
       | compileExp ctx (DotsExp (span)) = raise Fail "unimplemented"
       | compileExp ctx (ListExp (span, exps)) = (
           emit (PushStr "%lst");

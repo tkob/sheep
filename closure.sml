@@ -225,6 +225,8 @@ structure Closure = struct
       | convertExp topFuns (VarExp (span, v0)) = (topFuns, VarExp (span, v0))
       | convertExp topFuns (IntExp (span, v0)) = (topFuns, IntExp (span, v0))
       | convertExp topFuns (StrExp (span, v0)) = (topFuns, StrExp (span, v0))
+      | convertExp topFuns (TrueExp (span)) = (topFuns, TrueExp span)
+      | convertExp topFuns (FalseExp (span)) = (topFuns, FalseExp span)
       | convertExp topFuns (DotsExp (span)) = (topFuns, DotsExp span)
       | convertExp topFuns (ListExp (span, v0)) =
           convertUnary ListExp convertExp' topFuns (span, v0)

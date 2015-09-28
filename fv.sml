@@ -38,6 +38,8 @@ structure Fv = struct
         if S.member env v0 then S.empty else S.singleton v0
     | fvExp env (IntExp (span, v0)) = S.empty
     | fvExp env (StrExp (span, v0)) = S.empty
+    | fvExp env (TrueExp (span)) = S.empty
+    | fvExp env (FalseExp (span)) = S.empty
     | fvExp env (DotsExp (span)) = S.empty
     | fvExp env (ListExp (span, v0)) = fvExp' env v0
     | fvExp env (NilExp (span)) = S.empty
