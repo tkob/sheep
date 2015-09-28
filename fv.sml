@@ -40,7 +40,6 @@ structure Fv = struct
     | fvExp env (StrExp (span, v0)) = S.empty
     | fvExp env (TrueExp (span)) = S.empty
     | fvExp env (FalseExp (span)) = S.empty
-    | fvExp env (DotsExp (span)) = S.empty
     | fvExp env (ListExp (span, v0)) = fvExp' env v0
     | fvExp env (NilExp (span)) = S.empty
     | fvExp env (BlockExp (span, v0)) = fvStatement' env v0

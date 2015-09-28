@@ -115,7 +115,6 @@ IntExp.   Exp5 ::= Integer ;
 StrExp.   Exp5 ::= String ;
 TrueExp.  Exp5 ::= True ;
 FalseExp. Exp5 ::= False ;
-DotsExp.  Exp5 ::= "..." ;
 ListExp.  Exp5 ::= "[" [Exp] "]" ;
 NilExp.   Exp5 ::= "[" "]" ;
 BlockExp. Exp5 ::= "{" [Statement] "}" ;

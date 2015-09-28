@@ -227,7 +227,6 @@ structure Closure = struct
       | convertExp topFuns (StrExp (span, v0)) = (topFuns, StrExp (span, v0))
       | convertExp topFuns (TrueExp (span)) = (topFuns, TrueExp span)
       | convertExp topFuns (FalseExp (span)) = (topFuns, FalseExp span)
-      | convertExp topFuns (DotsExp (span)) = (topFuns, DotsExp span)
       | convertExp topFuns (ListExp (span, v0)) =
           convertUnary ListExp convertExp' topFuns (span, v0)
       | convertExp topFuns (NilExp (span)) = (topFuns, NilExp span)

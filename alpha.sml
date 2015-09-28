@@ -227,7 +227,6 @@ structure Alpha = struct
     | convertExp env (StrExp (span, v0)) = StrExp (span, v0)
     | convertExp env (TrueExp (span)) = TrueExp span
     | convertExp env (FalseExp (span)) = FalseExp span
-    | convertExp env (DotsExp (span)) = DotsExp span
     | convertExp env (ListExp (span, v0)) = ListExp (span, convertExp' env v0)
     | convertExp env (NilExp (span)) = NilExp span
     | convertExp env (BlockExp (span, v0)) = BlockExp (span, convertStatement' env v0)
