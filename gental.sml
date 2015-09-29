@@ -43,8 +43,8 @@ structure GenTal = struct
 
   fun emit (PushInt value)      = puts ("push " ^ Int.toString value)
     | emit (PushStr value)      = puts ("push {" ^ value ^ "}")
-    | emit (PushTrue)           = puts ("push t")
-    | emit (PushFalse)          = puts ("push f")
+    | emit (PushTrue)           = puts ("push true")
+    | emit (PushFalse)          = puts ("push false")
     | emit (Pop)                = puts ("pop")
     | emit (Load varname)       = puts ("load " ^ varname)
     | emit (Store varname)      = puts ("store " ^ varname)
