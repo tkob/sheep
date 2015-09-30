@@ -3,6 +3,7 @@
 exec tclsh "$0" ${1+"$@"}
 
 package require Tcl 8.6
+package require cmdline
 package require textutil
 package require csv
 
@@ -16,6 +17,8 @@ namespace eval sheepruntime {
     variable infileid
     variable readproc
     variable writeproc
+    variable readprocs
+    variable writeprocs
 
     proc debug {msg} {
         if {[info exists ::env(SHEEP_DEBUG)] && $::env(SHEEP_DEBUG)} {
@@ -173,7 +176,42 @@ namespace eval sheepruntime {
         flatappend l $record
         puts -nonewline [::csv::join $l]
     }
+
+    array set readprocs {
+        awk awkread
+    }
+
+    array set writeprocs {
+        awk awkwrite
+        csv csvwrite
+    }
+
+    proc getoptions {argvVar} {
+        variable readprocs
+        variable writeprocs
+        variable readproc
+        variable writeproc
+        upvar argv $argvVar
+        set options {
+            {f.arg "awk" "input format"}
+            {t.arg "awk" "output format"}
+        }
+        set usage ": \[options]"
+        array set params [::cmdline::getoptions argv $options $usage]
+
+        if {![info exists readprocs($params(f))]} {
+            error "invalid input format: $params(f)"
+        }
+        set readproc $readprocs($params(f))
+
+        if {![info exists writeprocs($params(t))]} {
+            error "invalid output format: $params(t)"
+        }
+        set writeproc $writeprocs($params(t))
+    }
 }
+
+::sheepruntime::getoptions argv
 
 set ::sheepruntime::infileid stdin
 set ::sheepruntime::readproc awkread
