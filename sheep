@@ -214,8 +214,6 @@ namespace eval sheepruntime {
 ::sheepruntime::getoptions argv
 
 set ::sheepruntime::infileid stdin
-set ::sheepruntime::readproc awkread
-set ::sheepruntime::writeproc awkwrite
 
 eval [exec main [lindex $argv 0]]
 
