@@ -1,4 +1,4 @@
-structure Main = struct
+structure SheepCompiler = struct
   fun main (_, arguments) =
        let
          val fileName = case arguments of [] => NONE | a::_ => SOME a
@@ -35,7 +35,7 @@ fun main () =
     val name = CommandLine.name ()
     val arguments = CommandLine.arguments ()
   in
-      OS.Process.exit (Main.main (name, arguments))
+      OS.Process.exit (SheepCompiler.main (name, arguments))
   end
 
 val _ = main ()
