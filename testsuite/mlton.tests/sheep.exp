@@ -14,6 +14,16 @@ expect eof
 exitstatus should be 0
 
 spawn sheep testsuite/fixture/bang.shp
+expect "hello"
+expect "hello world"
+expect "hello world 2 !"
+expect "cheer cheer cheer"
+expect "cheer cheer cheer cheer"
+expect "( cheer cheer cheer )"
+expect "true"
+expect "false"
+expect "goodbye"
+expect "goodbye world !"
 expect eof
 exitstatus should be 0
 
