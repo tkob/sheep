@@ -7,6 +7,8 @@ BEGIN {
   ! f @ "cheer"
   ! "cheer", f("cheer")
   ! "(", f("cheer"), ")"
+  ! 123 = 123
+  ! 123 = 345
 }
 
 END {
