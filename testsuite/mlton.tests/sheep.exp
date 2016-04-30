@@ -5,15 +5,15 @@
 spawn mlton main.mlb
 exitstatus should be 0 or "building failed"
 
-spawn sheep testsuite/fixture/match.shp
+spawn sheeprun.tcl testsuite/fixture/match.shp
 expect eof
 exitstatus should be 0
 
-spawn sheep testsuite/fixture/function.shp
+spawn sheeprun.tcl testsuite/fixture/function.shp
 expect eof
 exitstatus should be 0
 
-spawn sheep testsuite/fixture/bang.shp
+spawn sheeprun.tcl testsuite/fixture/bang.shp
 expect "hello"
 expect "hello world"
 expect "hello world 2 !"
@@ -27,19 +27,19 @@ expect "goodbye world !"
 expect eof
 exitstatus should be 0
 
-spawn sheep testsuite/fixture/return.shp
+spawn sheeprun.tcl testsuite/fixture/return.shp
 expect eof
 exitstatus should be 0
 
-spawn sheep testsuite/fixture/binop.shp
+spawn sheeprun.tcl testsuite/fixture/binop.shp
 expect eof
 exitstatus should be 0
 
-spawn sheep testsuite/fixture/list.shp
+spawn sheeprun.tcl testsuite/fixture/list.shp
 expect eof
 exitstatus should be 0
 
-spawn sheep testsuite/fixture/for.shp
+spawn sheeprun.tcl testsuite/fixture/for.shp
 expect "start"
 expect "1"
 expect "2"
