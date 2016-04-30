@@ -38,3 +38,12 @@ exitstatus should be 0
 spawn sheep testsuite/fixture/list.shp
 expect eof
 exitstatus should be 0
+
+spawn sheep testsuite/fixture/for.shp
+expect "start"
+expect "1"
+expect "2"
+expect "3"
+expect "end"
+expect eof
+exitstatus should be 0
