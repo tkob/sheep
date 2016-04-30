@@ -215,7 +215,10 @@ namespace eval sheepruntime {
 
 set ::sheepruntime::infileid stdin
 
-eval [exec main [lindex $argv 0]]
+puts [lindex $argv 0]
+set ::sheepruntime::f [open [lindex $argv 0]]
+eval [read $::sheepruntime::f]
+close $::sheepruntime::f
 
 if {[llength [info procs __BEGIN]]} {
     __BEGIN

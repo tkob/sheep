@@ -1,0 +1,15 @@
+AS_INIT
+# vim: set filetype=sh :
+
+atexit ()
+{
+  AS_IF([test -d "$tmp"], [rm -rf "$tmp"])
+}
+trap atexit EXIT 
+trap 'trap - EXIT; atexit; AS_EXIT(1)' INT PIPE TERM
+
+AS_TMPDIR(shp)
+prog=$tmp/prog.tcl
+
+main "$@" > $prog
+sheeprun.tcl $prog
