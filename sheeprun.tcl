@@ -170,6 +170,8 @@ namespace eval sheepruntime {
         global argv
         ::sheepruntime::getoptions argv
 
+        set interp [interp create -safe]
+
         set f [open "|sheepfront.tcl"]
 
         source [lindex $argv 0]
@@ -195,7 +197,7 @@ namespace eval sheepruntime {
             }
             ::sheepruntime::debug "input=$input"
 
-            eval "set record {$input}"
+            set record [interp eval $interp set record "{$input}"]
             ::sheepruntime::debug "record=$record"
 
             foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
