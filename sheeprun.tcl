@@ -22,6 +22,14 @@ namespace eval sheepruntime {
         }
     }
 
+    proc app {fun as} {
+        $fun {*}$as
+    }
+
+    proc appfv {fun fv as} {
+        $fun $fv {*}$as
+    }
+
     proc matchint {pat val} {
         debug "matchint: pat: $pat"
         debug "matchint: val: $val"

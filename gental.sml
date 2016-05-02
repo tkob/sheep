@@ -413,8 +413,58 @@ structure GenTal = struct
           compileStatement' ctx endLabel xs)
     and compileLargeExp ctx (PipeExp (span, largeExp0, largeExp1)) =
           raise Fail "unimplemented"
-      | compileLargeExp ctx (AppExp (span, Exp (span', VarExp (span'', v0)), v1)) =
-          compileApp (ctx, v0, v1)
+      | compileLargeExp ctx (AppExp (span, Exp (span', VarExp (span'', funName)), exps)) = (
+          if Global.mem (funName, globalFuns) then (
+            emit (PushStr "::sheepruntime::app");
+            emit (PushStr funName);
+            emit (PushStr "");
+            List.app
+              (fn exp => (
+                compileExp MV exp;
+                emit ListConcat))
+              exps;
+            emit (InvokeStk 3))
+          else
+            let
+              val nofvLabel = Alpha.gensym "nofv"
+              val endLabel = Alpha.gensym "end"
+            in
+              emit (Load funName);
+              emit (ListIndexImm 2); (* get free variables *)
+              emit (PushStr "%lst");
+              emit (Eq);
+              emit (JumpTrue nofvLabel);
+              emit (PushStr "::sheepruntime::appfv");
+              emit (Load funName);   (* load closure record to the stack *)
+              emit (ListIndexImm 1); (* get global function name *)
+              emit (Load funName);
+              emit (ListIndexImm 2); (* get free variables again *)
+              emit (PushStr "");
+              List.app
+                (fn exp => (
+                  compileExp MV exp;
+                  emit ListConcat))
+                exps;
+              emit (InvokeStk 4);
+              emit (Jump endLabel);
+              emit (Label nofvLabel);
+              emit (PushStr "::sheepruntime::app");
+              emit (Load funName);   (* load closure record to the stack *)
+              emit (ListIndexImm 1); (* get global function name *)
+              emit (PushStr "");
+              List.app
+                (fn exp => (
+                  compileExp MV exp;
+                  emit ListConcat))
+                exps;
+              emit (InvokeStk 3);
+              emit (Label endLabel)
+            end;
+          (* A function returns multiple results. Pick the first within single
+             value context. *)
+          case ctx of
+               SV => emit (ListIndexImm 0)
+             | MV => ())
       | compileLargeExp ctx (AppExp (span, v0, v1)) =
           raise Fail "1st arg of AppExp should become VarExp at Alpha phase"
       | compileLargeExp ctx (Exp (span, v0)) = compileExp ctx v0
@@ -491,7 +541,7 @@ structure GenTal = struct
     and compileApp (ctx, funName, exps) = (
           if Global.mem (funName, globalFuns) then (
             emit (PushStr funName);
-            compileExp' SV exps; (* TODO: should create MV context in some sense *)
+            compileExp' SV exps;
             emit (InvokeStk (1 + length exps)))
           else
             let
@@ -507,11 +557,11 @@ structure GenTal = struct
               emit (JumpTrue nofvLabel);
               emit (Load funName);
               emit (ListIndexImm 2); (* get free variables again *)
-              compileExp' SV exps; (* TODO: should create MV context in some sense *)
+              compileExp' SV exps;
               emit (InvokeStk (2 + length exps));
               emit (Jump endLabel);
               emit (Label nofvLabel);
-              compileExp' SV exps; (* TODO: should create MV context in some sense *)
+              compileExp' SV exps;
               emit (InvokeStk (1 + length exps));
               emit (Label endLabel)
             end;
