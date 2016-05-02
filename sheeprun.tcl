@@ -8,7 +8,7 @@ package require textutil
 package require csv
 
 namespace eval sheepruntime {
-    namespace export match emitbang
+    namespace export main
 
     variable __! {}
     variable __patbody
@@ -181,45 +181,50 @@ namespace eval sheepruntime {
         }
         set writeproc $writeprocs($params(t))
     }
-}
 
-::sheepruntime::getoptions argv
+    proc main {} {
+        global argv
+        ::sheepruntime::getoptions argv
 
-set ::sheepruntime::infileid [open "| sheepfront.tcl"]
+        set ::sheepruntime::infileid [open "| sheepfront.tcl"]
 
-source [lindex $argv 0]
+        source [lindex $argv 0]
 
-if {[llength [info procs __BEGIN]]} {
-    __BEGIN
-    ::sheepruntime::emitbang
-}
-
-set ::sheepruntime::__mode __default
-
-while {[info exists sheepruntime::__patbody($::sheepruntime::__mode)]} {
-    if {[eof $::sheepruntime::infileid]} { break }
-
-    ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
-    set ::sheepruntime::__! {}
-    set ::sheepruntime::record {}
-    set input ""
-    while {[gets $::sheepruntime::infileid line] >= 0} {
-        ::sheepruntime::debug "line=$line"
-        if {$line == "#"} { break }
-        set input "$input$line\n"
-    }
-    ::sheepruntime::debug "input=$input"
-    eval "set ::sheepruntime::record {$input}"
-    ::sheepruntime::debug "record=$line"
-    foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
-        if {[${__pb} {*}$::sheepruntime::record]} {
+        if {[llength [info procs __BEGIN]]} {
+            __BEGIN
             ::sheepruntime::emitbang
-            break
+        }
+
+        set ::sheepruntime::__mode __default
+
+        while {[info exists sheepruntime::__patbody($::sheepruntime::__mode)]} {
+            if {[eof $::sheepruntime::infileid]} { break }
+
+            ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
+            set ::sheepruntime::__! {}
+            set ::sheepruntime::record {}
+            set input ""
+            while {[gets $::sheepruntime::infileid line] >= 0} {
+                ::sheepruntime::debug "line=$line"
+                if {$line == "#"} { break }
+                set input "$input$line\n"
+            }
+            ::sheepruntime::debug "input=$input"
+            eval "set ::sheepruntime::record {$input}"
+            ::sheepruntime::debug "record=$line"
+            foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
+                if {[${__pb} {*}$::sheepruntime::record]} {
+                    ::sheepruntime::emitbang
+                    break
+                }
+            }
+        }
+
+        if {[llength [info procs __END]]} {
+            __END
+            ::sheepruntime::emitbang
         }
     }
 }
 
-if {[llength [info procs __END]]} {
-    __END
-    ::sheepruntime::emitbang
-}
+::sheepruntime::main
