@@ -13,9 +13,7 @@ namespace eval sheepruntime {
     variable __! {}
     variable __patbody
     variable agenda {}
-    variable readproc
     variable writeproc
-    variable readprocs
     variable writeprocs
 
     proc debug {msg} {
@@ -147,32 +145,20 @@ namespace eval sheepruntime {
         puts -nonewline [::csv::join $l]
     }
 
-    array set readprocs {
-        awk awkread
-    }
-
     array set writeprocs {
         awk awkwrite
         csv csvwrite
     }
 
     proc getoptions {argvVar} {
-        variable readprocs
         variable writeprocs
-        variable readproc
         variable writeproc
         upvar argv $argvVar
         set options {
-            {f.arg "awk" "input format"}
             {t.arg "awk" "output format"}
         }
         set usage ": \[options]"
         array set params [::cmdline::getoptions argv $options $usage]
-
-        if {![info exists readprocs($params(f))]} {
-            error "invalid input format: $params(f)"
-        }
-        set readproc $readprocs($params(f))
 
         if {![info exists writeprocs($params(t))]} {
             error "invalid output format: $params(t)"
