@@ -172,7 +172,7 @@ namespace eval sheepruntime {
 
         set interp [interp create -safe]
 
-        set f [open "|sheepfront.tcl"]
+        set f [open "|sheepfront.tcl [lrange $argv 1 end]"]
 
         source [lindex $argv 0]
 
