@@ -13,8 +13,6 @@ namespace eval sheepruntime {
     variable __! {}
     variable __patbody
     variable agenda {}
-    variable record {}
-    variable infileid
     variable readproc
     variable writeproc
     variable readprocs
@@ -186,7 +184,7 @@ namespace eval sheepruntime {
         global argv
         ::sheepruntime::getoptions argv
 
-        set ::sheepruntime::infileid [open "| sheepfront.tcl"]
+        set f [open "|sheepfront.tcl"]
 
         source [lindex $argv 0]
 
@@ -198,22 +196,24 @@ namespace eval sheepruntime {
         set ::sheepruntime::__mode __default
 
         while {[info exists sheepruntime::__patbody($::sheepruntime::__mode)]} {
-            if {[eof $::sheepruntime::infileid]} { break }
+            if {[eof $f]} { break }
 
             ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
             set ::sheepruntime::__! {}
-            set ::sheepruntime::record {}
+
             set input ""
-            while {[gets $::sheepruntime::infileid line] >= 0} {
+            while {[gets $f line] >= 0} {
                 ::sheepruntime::debug "line=$line"
                 if {$line == "#"} { break }
                 set input "$input$line\n"
             }
             ::sheepruntime::debug "input=$input"
-            eval "set ::sheepruntime::record {$input}"
-            ::sheepruntime::debug "record=$line"
+
+            eval "set record {$input}"
+            ::sheepruntime::debug "record=$record"
+
             foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
-                if {[${__pb} {*}$::sheepruntime::record]} {
+                if {[${__pb} {*}$record]} {
                     ::sheepruntime::emitbang
                     break
                 }
