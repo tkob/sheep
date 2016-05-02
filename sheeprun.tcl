@@ -112,34 +112,6 @@ namespace eval sheepruntime {
         set __! [list]
     }
 
-    proc read {} {
-        variable agenda
-        variable record
-        variable readproc
-        if {[llength $agenda]} {
-            set record [lindex $agenda 0]
-            set agenda [lrange $agenda 1 end]
-            return 1
-        } else {
-            $readproc
-        }
-    }
-
-    proc awkread {} {
-        variable record
-        variable infileid
-        if {[gets $infileid line] >= 0} {
-            set line [string trim $line]
-            foreach field [::textutil::splitx $line {\s+}] {
-                lappend record [list %str $field]
-            }
-            debug $record
-            return 1
-        } else {
-            return 0
-        }
-    }
-
     proc awkwrite {record} {
         foreach field $record {
             set tag [lindex $field 0]
@@ -213,7 +185,7 @@ namespace eval sheepruntime {
 
 ::sheepruntime::getoptions argv
 
-set ::sheepruntime::infileid stdin
+set ::sheepruntime::infileid [open "| sheepfront.tcl"]
 
 source [lindex $argv 0]
 
@@ -225,18 +197,25 @@ if {[llength [info procs __BEGIN]]} {
 set ::sheepruntime::__mode __default
 
 while {[info exists sheepruntime::__patbody($::sheepruntime::__mode)]} {
+    if {[eof $::sheepruntime::infileid]} { break }
+
     ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
     set ::sheepruntime::__! {}
     set ::sheepruntime::record {}
-    if {[::sheepruntime::read]} {
-        foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
-            if {[${__pb} {*}$::sheepruntime::record]} {
-                ::sheepruntime::emitbang
-                break
-            }
+    set input ""
+    while {[gets $::sheepruntime::infileid line] >= 0} {
+        ::sheepruntime::debug "line=$line"
+        if {$line == "#"} { break }
+        set input "$input$line\n"
+    }
+    ::sheepruntime::debug "input=$input"
+    eval "set ::sheepruntime::record {$input}"
+    ::sheepruntime::debug "record=$line"
+    foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
+        if {[${__pb} {*}$::sheepruntime::record]} {
+            ::sheepruntime::emitbang
+            break
         }
-    } else {
-        break
     }
 }
 
