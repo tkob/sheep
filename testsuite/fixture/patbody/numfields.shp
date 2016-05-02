@@ -1,0 +1,11 @@
+f {
+  ! "one"
+}
+
+f1, f2 {
+  ! "two"
+}
+
+f1, f2, f3, ... {
+  ! "three or more"
+}

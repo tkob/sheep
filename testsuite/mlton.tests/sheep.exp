@@ -42,3 +42,10 @@ expect "3"
 expect "end"
 expect eof
 exitstatus should be 0
+
+spawn sheep testsuite/fixture/patbody/numfields.shp testsuite/fixture/patbody/numfields.input
+expect "one"
+expect "two"
+expect "three or more"
+expect "three or more"
+exitstatus should be 0
