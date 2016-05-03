@@ -141,13 +141,17 @@ structure GenTal = struct
           in
             compilePats (pats, expf, nomatchLabel);
             (* match succeeded *)
-            List.app
-              (fn var => (
-                emit (PushStr var);
-                emit (LoadArray "__bindings");
-                emit (Store var);
-                emit Pop))
-              vars
+            if length vars > 0 then (
+              comment "match succeeded, reading matched variables";
+              List.app
+                (fn var => (
+                  emit (PushStr var);
+                  emit (LoadArray "__bindings");
+                  emit (Store var);
+                  emit Pop))
+                vars;
+              comment "have read matched variables")
+            else ()
           end
 
     fun compilePatsArray (pats, expf, arrayName, nomatchLabel) =
@@ -156,14 +160,18 @@ structure GenTal = struct
           in
             compilePats (pats, expf, nomatchLabel);
             (* match succeeded *)
-            List.app
-              (fn var => (
-                emit (PushStr var);
-                emit (PushStr var);
-                emit (LoadArray "__bindings");
-                emit (StoreArray arrayName);
-                emit Pop))
-              vars
+            if length vars > 0 then (
+              comment "match succeeded, reading matched variables";
+              List.app
+                (fn var => (
+                  emit (PushStr var);
+                  emit (PushStr var);
+                  emit (LoadArray "__bindings");
+                  emit (StoreArray arrayName);
+                  emit Pop))
+                vars;
+              comment "have read matched variables")
+            else ()
           end
 
     val beginProcName = "__BEGIN"
