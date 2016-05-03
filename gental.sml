@@ -40,6 +40,7 @@ structure GenTal = struct
   datatype context = SV | MV (* multi-value context *)
 
   fun puts s = (print s; print "\n")
+  fun comment s = (print "    # "; puts s)
 
   fun emit (PushInt value)      = puts ("push " ^ Int.toString value)
     | emit (PushStr value)      = puts ("push {" ^ value ^ "}")
@@ -125,11 +126,13 @@ structure GenTal = struct
 
     fun compilePats (pats, expf, nomatchLabel) = (
           (* do match *)
+          comment "pattern matching begins";
           emit (PushStr "::sheepruntime::match");
           emit (PushStr (compilePat' pats));
           expf ();
           emit (InvokeStk 3);
-          emit (JumpFalse nomatchLabel))
+          emit (JumpFalse nomatchLabel);
+          comment "pattern matching end")
 
     fun compilePatsLocal (pats, expf, nomatchLabel) =
           let
@@ -218,7 +221,7 @@ structure GenTal = struct
             val vars = varsOf' pats
             val freeVars = Fv.fvValDef [] valDef
           in
-            puts ("# " ^ showValDef valDef);
+            comment (showValDef valDef);
             proc scopeProcName [] (fn () => (
               (* upvar global variables; corresponds to global command *)
               List.app importGlobalVal vars;
@@ -281,7 +284,7 @@ structure GenTal = struct
       | compileStatement' ctx endLabel (FunStatement (span, v0)::xs) =
           raise Fail "FunStatement should be eliminated at Closure phase"
       | compileStatement' ctx endLabel ((x as ValStatement (span, valDef as Val (span', v0, v1)))::xs) = (
-          puts ("# " ^ showStatement x);
+          comment (showStatement x);
           compileValDef valDef;
           compileStatement' ctx endLabel xs)
       | compileStatement' ctx endLabel (NextStatement (span, pats, largeExp)::xs) =
@@ -372,27 +375,27 @@ structure GenTal = struct
             compileStatement' ctx endLabel xs
           end
       | compileStatement' SV endLabel ((x as ReturnStatement0 span)::xs) = (
-          puts ("# " ^ showStatement x);
+          comment (showStatement x);
           emitError ("no return value with in single value context", SOME span);
           emit (Jump endLabel);
           compileStatement' SV endLabel xs)
       | compileStatement' MV endLabel ((x as ReturnStatement0 span)::xs) = (
-          puts ("# " ^ showStatement x);
+          comment (showStatement x);
           emit (List 0);
           emit (Jump endLabel);
           compileStatement' MV endLabel xs)
       | compileStatement' SV endLabel ((x as ReturnStatement1 (span, v0))::xs) = (
-          puts ("# " ^ showStatement x);
+          comment (showStatement x);
           compileLargeExp SV v0;
           emit (Jump endLabel);
           compileStatement' SV endLabel xs)
       | compileStatement' MV endLabel ((x as ReturnStatement1 (span, v0))::xs) = (
-          puts ("# " ^ showStatement x);
+          comment (showStatement x);
           compileLargeExp MV v0;
           emit (Jump endLabel);
           compileStatement' MV endLabel xs)
       | compileStatement' SV endLabel ((x as ReturnStatement2 (span, v0, v1))::xs) = (
-          puts ("# " ^ showStatement x);
+          comment (showStatement x);
           compileExp SV v0;
           (* Within single value context, the rest of arguments are evaluated
              and disposed. So it does not matter whether they are evaluated in
@@ -402,13 +405,13 @@ structure GenTal = struct
           emit (Jump endLabel);
           compileStatement' SV endLabel xs)
       | compileStatement' MV endLabel ((x as ReturnStatement2 (span, exp, exps))::xs) = (
-          puts ("# " ^ showStatement x);
+          comment (showStatement x);
           compileExp MV exp;
           List.app (fn exp => (compileExp MV exp; emit ListConcat)) exps;
           emit (Jump endLabel);
           compileStatement' MV endLabel xs)
       | compileStatement' ctx endLabel ((x as ClosureStatement (span, funName, fvs))::xs) = (
-          puts ("# " ^ showStatement x);
+          comment (showStatement x);
           compileClosure (funName, fvs);
           compileStatement' ctx endLabel xs)
     and compileLargeExp ctx (PipeExp (span, largeExp0, largeExp1)) =
