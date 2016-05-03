@@ -424,7 +424,7 @@ structure GenTal = struct
           compileClosure (funName, fvs);
           compileStatement' ctx endLabel xs)
     and compileLargeExp ctx (PipeExp (span, largeExp0, largeExp1)) =
-          raise Fail "unimplemented"
+          raise Fail "PipeExp should be eliminated at Alpha phase"
       | compileLargeExp ctx (AppExp (span, Exp (span', VarExp (span'', funName)), exps)) = (
           if Global.mem (funName, globalFuns) then (
             emit (PushStr "::sheepruntime::app");

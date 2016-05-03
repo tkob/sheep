@@ -140,7 +140,11 @@ structure Alpha = struct
     | convertStatement' env (ClosureStatement (span, v0, v1)::xs) =
         raise Fail "closure statement must not used explicitly"
   and convertLargeExp env (PipeExp (span, v0, v1)) =
-        PipeExp (span, convertLargeExp env v0, convertLargeExp env v1)
+        let
+          val appExp = AppExp (span, v1, [LargeExp (span, v0)])
+        in
+          convertLargeExp env appExp
+        end
     | convertLargeExp env (AppExp (span, v0 as Exp (span', VarExp _), v1)) =
         AppExp (span, convertLargeExp env v0, convertExp' env v1)
     | convertLargeExp env (AppExp (span, v0, v1)) =
