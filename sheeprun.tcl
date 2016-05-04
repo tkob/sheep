@@ -99,6 +99,8 @@ namespace eval sheepruntime {
         return [matchvals $pat 0 $val 1]
     }
 
+    # Matches vals against pats and returns 1 if they match, 0 otherwise.
+    # Caller can read __bindings upvar to read matched variables.
     proc match {pats vals} {
         debug "match: pats [llength $pats]: $pats"
         debug "match: vals [llength $vals]: $vals"
