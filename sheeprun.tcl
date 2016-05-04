@@ -225,4 +225,6 @@ namespace eval sheepruntime {
     }
 }
 
-::sheepruntime::main
+if {!$tcl_interactive} {
+    ::sheepruntime::main
+}
