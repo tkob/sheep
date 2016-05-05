@@ -32,6 +32,8 @@ structure GenTal = struct
                   | Jump of string
                   | JumpTrue of string
                   | JumpFalse of string
+                  | BeginCatch of string
+                  | EndCatch
                   | LoadArray of string
                   | StoreArray of string
                   | Incr of string
@@ -73,6 +75,8 @@ structure GenTal = struct
     | emit (Jump label)         = iputs ("jump " ^ label)
     | emit (JumpTrue label)     = iputs ("jumpTrue " ^ label)
     | emit (JumpFalse label)    = iputs ("jumpFalse " ^ label)
+    | emit (BeginCatch label)   = iputs ("beginCatch " ^ label)
+    | emit (EndCatch)           = iputs ("endCatch")
     | emit (LoadArray varname)  = iputs ("loadArray " ^ varname)
     | emit (StoreArray varname) = iputs ("storeArray " ^ varname)
     | emit (Incr varname)       = iputs ("incr " ^ varname)
