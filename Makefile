@@ -2,6 +2,7 @@ SRC = alpha.sml closure.sml fv.sml gental.sml global.sml sheepc.sml parse.sml pa
 
 check: sheep sheepc
 	runtest
+	prove --exec t/do-test
 
 sheep: sheep.in
 	autom4te -l M4sh -o $@ $<

@@ -487,15 +487,15 @@ structure GenTal = struct
     and compileExp ctx (FunExp (span, v0, v1)) =
           raise Fail "FunExp should be eliminated at Alpha phase"
       | compileExp ctx (EqExp (span, v0, v1)) =
-          compileBinOpBool (ctx, Eq, v0, v1)
+          compileBinOpBool (ctx, Eq, "eq", v0, v1)
       | compileExp ctx (GtExp (span, v0, v1)) =
-          compileBinOpBool (ctx, Gt, v0, v1)
+          compileBinOpBool (ctx, Gt, "gt", v0, v1)
       | compileExp ctx (LtExp (span, v0, v1)) =
-          compileBinOpBool (ctx, Lt, v0, v1)
+          compileBinOpBool (ctx, Lt, "lt", v0, v1)
       | compileExp ctx (GeExp (span, v0, v1)) =
-          compileBinOpBool (ctx, Ge, v0, v1)
+          compileBinOpBool (ctx, Ge, "ge", v0, v1)
       | compileExp ctx (LeExp (span, v0, v1)) =
-          compileBinOpBool (ctx, Le, v0, v1)
+          compileBinOpBool (ctx, Le, "le", v0, v1)
       | compileExp ctx (ConsExp (span, v0, v1)) =
           let
             val endLabel = Alpha.gensym "end"
@@ -515,10 +515,10 @@ structure GenTal = struct
             emit (Label endLabel);
             emitMV ctx
           end
-      | compileExp ctx (AddExp (span, v0, v1)) = compileBinOp (ctx, Add, v0, v1)
-      | compileExp ctx (SubExp (span, v0, v1)) = compileBinOp (ctx, Sub, v0, v1)
-      | compileExp ctx (MulExp (span, v0, v1)) = compileBinOp (ctx, Mult, v0, v1)
-      | compileExp ctx (DivExp (span, v0, v1)) = compileBinOp (ctx, Div, v0, v1)
+      | compileExp ctx (AddExp (span, v0, v1)) = compileBinOp (ctx, Add, "add", v0, v1)
+      | compileExp ctx (SubExp (span, v0, v1)) = compileBinOp (ctx, Sub, "sub", v0, v1)
+      | compileExp ctx (MulExp (span, v0, v1)) = compileBinOp (ctx, Mult, "mul", v0, v1)
+      | compileExp ctx (DivExp (span, v0, v1)) = compileBinOp (ctx, Div, "div", v0, v1)
       | compileExp ctx (App2Exp (span, VarExp (span', v0), v1)) =
           compileApp (ctx, v0, v1)
       | compileExp ctx (App2Exp (span, v0, v1)) =
@@ -548,12 +548,18 @@ structure GenTal = struct
       | compileExp ctx (LargeExp (span, v0)) = compileLargeExp ctx v0
     and compileExp' ctx xs = List.app (compileExp ctx) xs
     (* utility functions follow *)
-    and compileBinOp' (ctx, opcode, v0, v1, postf) =
-          (compileExp SV v0; compileExp SV v1; emit opcode; postf (); emitMV ctx)
-    and compileBinOp (ctx, opcode, v0, v1) =
-          compileBinOp' (ctx, opcode, v0, v1, fn () => ())
-    and compileBinOpBool (ctx, opcode, v0, v1) =
-          compileBinOp' (ctx, opcode, v0, v1, tagBool)
+    and compileBinOp' (ctx, opcode, proc, v0, v1, postf) = (
+          (* compileExp SV v0; compileExp SV v1; emit opcode; *)
+          emit (PushStr proc);
+          compileExp SV v0;
+          compileExp SV v1;
+          emit (InvokeStk 3);
+          postf ();
+          emitMV ctx)
+    and compileBinOp (ctx, opcode, proc, v0, v1) =
+          compileBinOp' (ctx, opcode, proc, v0, v1, fn () => ())
+    and compileBinOpBool (ctx, opcode, proc, v0, v1) =
+          compileBinOp' (ctx, opcode, proc, v0, v1, tagBool)
     and compileApp (ctx, funName, exps) = (
           if Global.mem (funName, globalFuns) then (
             emit (PushStr funName);

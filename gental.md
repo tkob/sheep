@@ -7,9 +7,16 @@ The rationale is that type of a Sheep value should be reified at runtime, but
 the Tcl runtime does not distinguish types of values very well. (because of the
 EIAS principle)
 
-### Integer ###
+### Integer and Floating Point Number ###
 
-Integer values are represented as is.
+Integers and floating point numbers are represented as is.
+
+### Rational Number ###
+
+Rational numbers are represented as a 3-elemtent list whose first element is
+`%rat`, the second is the numerator and the third is the denominator.
+Rational numbers whose denominator is 1 should be represented as integers
+rather than rational numbers (3-element lists).
 
 ### Boolean ###
 
