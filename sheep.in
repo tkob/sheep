@@ -9,7 +9,14 @@ trap atexit EXIT
 trap 'trap - EXIT; atexit; AS_EXIT(1)' INT PIPE TERM
 
 AS_TMPDIR(shp)
-prog=$tmp/prog.tcl
+prog="$tmp/prog.tcl"
 
-sheepc "$@" > $prog
-sheeprun.tcl $prog
+if (dirname /) >/dev/null 2>&1 && test "X`dirname / 2>&1`" = "X/"; then
+  mydir="`dirname $as_myself`/"
+else
+  mydir=""
+fi
+
+"${mydir}sheepc" "$@" > "$prog"
+shift
+"${mydir}sheeprun.tcl" "$prog" "$@"
