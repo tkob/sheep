@@ -6,6 +6,7 @@ check: sheep sheepc
 
 sheep: sheep.in
 	autom4te -l M4sh -o $@ $<
+	perl -i -pne 's/^\s*export\s+(LC_ALL|LANGUAGE)\s*$$//' $@
 
 sheepc: $(SRC) sheepc.mlb
 	mlton sheepc.mlb
