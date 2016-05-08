@@ -1,6 +1,6 @@
 # exp.shp
 
-    % exec sheep t/fixture/exp.shp
+    % exec shp t/fixture/exp.shp
     ## tests for = ## 
     true true 
     false false 

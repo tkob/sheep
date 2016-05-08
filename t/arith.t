@@ -1,6 +1,6 @@
 # Setup
 
-    % source sheeprun.tcl
+    % source shprun.tcl
 
 # Addition
 

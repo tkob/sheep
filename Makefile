@@ -1,20 +1,20 @@
-SRC = alpha.sml closure.sml fv.sml gental.sml global.sml sheepc.sml parse.sml parsestr.sml scan.ulex.sml set.sml
+SRC = alpha.sml closure.sml fv.sml gental.sml global.sml shpc.sml parse.sml parsestr.sml scan.ulex.sml set.sml
 
-check: sheep sheepc
+check: shp shpc
 	rm -f log.txt
 	prove --exec 't/do-test -log log.txt'
 
-sheep: sheep.in
+shp: shp.in
 	autom4te -l M4sh -o $@ $<
 	perl -i -pne 's/^\s*export\s+(LC_ALL|LANGUAGE)\s*$$//' $@
 
-sheepc: $(SRC) sheepc.mlb
-	mlton sheepc.mlb
+shpc: $(SRC) shpc.mlb
+	mlton shpc.mlb
 
 parse.sml scan.ulex.sml: parse.cf
 	proglr -o $@ -l scan.ulex $<
 
 clean:
-	rm -f sheep sheepc parse.sml scan.ulex.sml log.txt
+	rm -f shp shpc parse.sml scan.ulex.sml log.txt
 
 .PHONY: check clean

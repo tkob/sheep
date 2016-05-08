@@ -17,6 +17,6 @@ else
   mydir=""
 fi
 
-"${mydir}sheepc" "$@" > "$prog"
+"${mydir}shpc" "$@" > "$prog"
 shift
-"${mydir}sheeprun.tcl" "$prog" "$@"
+"${mydir}shprun.tcl" "$prog" "$@"

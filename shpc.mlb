@@ -12,4 +12,4 @@ set.sml
 fv.sml
 closure.sml
 gental.sml
-sheepc.sml
+shpc.sml

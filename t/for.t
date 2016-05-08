@@ -1,6 +1,6 @@
 # for.shp
 
-    % exec sheep t/fixture/for.shp
+    % exec shp t/fixture/for.shp
     start 
     1 
     2 

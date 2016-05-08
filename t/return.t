@@ -1,3 +1,3 @@
 # return.t
 
-    % exec sheep t/fixture/return.shp
+    % exec shp t/fixture/return.shp

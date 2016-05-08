@@ -1,3 +1,3 @@
 # function.shp
 
-    % sheep t/fixture/function.shp
+    % exec shp t/fixture/function.shp

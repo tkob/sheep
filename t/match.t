@@ -1,3 +1,3 @@
 # match.shp
 
-    % exec sheep t/fixture/match.shp
+    % exec shp t/fixture/match.shp
