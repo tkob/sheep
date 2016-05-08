@@ -1,8 +1,8 @@
 SRC = alpha.sml closure.sml fv.sml gental.sml global.sml sheepc.sml parse.sml parsestr.sml scan.ulex.sml set.sml
 
 check: sheep sheepc
-	runtest
-	prove --exec t/do-test
+	rm -f log.txt
+	prove --exec 't/do-test -log log.txt'
 
 sheep: sheep.in
 	autom4te -l M4sh -o $@ $<
@@ -15,6 +15,6 @@ parse.sml scan.ulex.sml: parse.cf
 	proglr -o $@ -l scan.ulex $<
 
 clean:
-	rm -f sheep sheepc parse.sml scan.ulex.sml
+	rm -f sheep sheepc parse.sml scan.ulex.sml log.txt
 
 .PHONY: check clean
