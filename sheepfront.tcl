@@ -9,7 +9,17 @@ proc awkread {f} {
         set record [list]
         set line [string trim $line]
         foreach field [::textutil::splitx $line {\s+}] {
-            lappend record [list %str $field]
+            if {[string is entier $field]} {
+                lappend record $field
+            } elseif {[string is double $field]} {
+                lappend record $field
+            } elseif {[regexp {^(TRUE|[Tt]rue)$} $field]} {
+                lappend record true
+            } elseif {[regexp {^(FALSE|[Ff]alse)$} $field]} {
+                lappend record false
+            } else {
+                lappend record [list %str $field]
+            }
         }
         puts $record
         puts "#"
