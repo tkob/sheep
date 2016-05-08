@@ -17,6 +17,25 @@ else
   shp_mydir=""
 fi
 
-"${shp_mydir}shpc" "$@" > "$shp_prog"
-shift
+shp_arg_e=
+while getopts e:h shp_opt; do
+  AS_CASE([$shp_opt],
+    [e], [shp_arg_e=$OPTARG])
+done
+shift `expr $OPTIND - 1`
+
+AS_IF([test -n "$shp_arg_e"], [
+        AS_ECHO("$shp_arg_e") | "${shp_mydir}shpc" > "$shp_prog"
+        shp_compilation_status=$?
+      ],[
+        "${shp_mydir}shpc" "$@" > "$shp_prog"
+        shp_compilation_status=$?
+        shift
+      ])
+
+AS_IF([test $shp_compilation_status -ne 0], [
+  AS_ECHO(["Compilation failed."])
+  AS_EXIT(1)
+])
+
 "${shp_mydir}shprun.tcl" "$shp_prog" "$@"
