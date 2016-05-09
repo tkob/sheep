@@ -1,6 +1,13 @@
 AS_INIT
 # vim: set filetype=sh :
 
+usage ()
+{
+  AS_ECHO("Usage:
+    shp ?-e *command*? ?script? *files ...*")
+  AS_EXIT(0)
+}
+
 atexit ()
 {
   # Delete temporary directory possibly made by AS_TMPDIR
@@ -32,10 +39,12 @@ shift `expr $OPTIND - 1`
 AS_IF([test -n "$shp_arg_e"], [
   AS_ECHO("$shp_arg_e") | "${shp_mydir}shpc" > "$shp_prog"
   shp_compilation_status=$?
-], [
+], [test -n "$1"], [
   "${shp_mydir}shpc" "$@" > "$shp_prog"
   shp_compilation_status=$?
   shift
+], [
+  usage
 ])
 
 AS_IF([test $shp_compilation_status -ne 0], [
