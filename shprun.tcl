@@ -382,10 +382,6 @@ namespace eval sheepruntime {
         global argv
         ::sheepruntime::getoptions argv
 
-        set interp [interp create -safe]
-
-        set f [open "|shpfront.tcl [lrange $argv 1 end]"]
-
         source [lindex $argv 0]
 
         if {[llength [info procs __BEGIN]]} {
@@ -395,30 +391,37 @@ namespace eval sheepruntime {
 
         set ::sheepruntime::__mode __default
 
-        while {[info exists sheepruntime::__patbody($::sheepruntime::__mode)]} {
-            if {[eof $f]} { break }
+        # If there are no pattern-bodies, input files are not read at all
+        if {[info exists sheepruntime::__patbody($::sheepruntime::__mode)]} {
+            set f [open "|shpfront.tcl [lrange $argv 1 end]"]
+            set interp [interp create -safe]
+            while {[info exists sheepruntime::__patbody($::sheepruntime::__mode)]} {
+                if {[eof $f]} { break }
 
-            ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
-            set ::sheepruntime::__! {}
+                ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
+                set ::sheepruntime::__! {}
 
-            set input ""
-            while {[gets $f line] >= 0} {
-                ::sheepruntime::debug "line=$line"
-                if {$line == "#"} { break }
-                set input "$input$line\n"
-            }
-            ::sheepruntime::debug "input=$input"
+                set input ""
+                while {[gets $f line] >= 0} {
+                    ::sheepruntime::debug "line=$line"
+                    if {$line == "#"} { break }
+                    set input "$input$line\n"
+                }
+                ::sheepruntime::debug "input=$input"
 
-            set record [interp eval $interp set record "{$input}"]
-            ::sheepruntime::debug "record=$record"
+                set record [interp eval $interp set record "{$input}"]
+                ::sheepruntime::debug "record=$record"
 
-            foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
-                if {[${__pb} {*}$record]} {
-                    ::sheepruntime::emitbang
-                    break
+                foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
+                    if {[${__pb} {*}$record]} {
+                        ::sheepruntime::emitbang
+                        break
+                    }
                 }
             }
+            close $f
         }
+
 
         if {[llength [info procs __END]]} {
             __END
