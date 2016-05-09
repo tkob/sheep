@@ -9,7 +9,7 @@ atexit ()
 trap atexit EXIT 
 trap 'trap - EXIT; atexit; AS_EXIT(1)' INT PIPE TERM
 
-# Make temporary directory and writ the name into $tmp
+# Make temporary directory and write the name into $tmp
 AS_TMPDIR(shp)
 
 shp_prog="$tmp/prog.tcl"
