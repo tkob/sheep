@@ -14,11 +14,11 @@ AS_TMPDIR(shp)
 
 shp_prog="$tmp/prog.tcl"
 
-if (dirname /) >/dev/null 2>&1 && test "X`dirname / 2>&1`" = "X/"; then
+AS_IF([(dirname /) >/dev/null 2>&1 && test "X`dirname / 2>&1`" = "X/"], [
   shp_mydir="`dirname $as_myself`/"
-else
+], [
   shp_mydir=""
-fi
+])
 
 # Parse command-line arguments
 shp_arg_e=
@@ -32,7 +32,7 @@ shift `expr $OPTIND - 1`
 AS_IF([test -n "$shp_arg_e"], [
   AS_ECHO("$shp_arg_e") | "${shp_mydir}shpc" > "$shp_prog"
   shp_compilation_status=$?
-],[
+], [
   "${shp_mydir}shpc" "$@" > "$shp_prog"
   shp_compilation_status=$?
   shift
