@@ -1,0 +1,21 @@
+# Employees
+
+## Total pay for each employee who worked more than 0 hour
+
+    % exec shp -e {name, wage, hours when hours > 0 { ! name, wage * hours }} t/fixture/emp.data
+    Kathy 40.0 
+    Mark 100.0 
+    Mary 121.0 
+    Susie 76.5 
+
+## Employees who did not work (use guard)
+
+    % exec shp -e {name, _, hours when hours = 0 { ! name }} t/fixture/emp.data
+    Beth 
+    Dan 
+
+## Employees who did not work (use pattern matching)
+
+    % exec shp -e {name, _, 0 { ! name }} t/fixture/emp.data
+    Beth 
+    Dan 
