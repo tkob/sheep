@@ -384,6 +384,9 @@ namespace eval sheepruntime {
 
         source [lindex $argv 0]
 
+        global NR
+        set NR 0
+
         if {[llength [info procs __BEGIN]]} {
             __BEGIN
             ::sheepruntime::emitbang
@@ -411,6 +414,7 @@ namespace eval sheepruntime {
 
                 set record [interp eval $interp set record "{$input}"]
                 ::sheepruntime::debug "record=$record"
+                incr NR
 
                 foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
                     if {[${__pb} {*}$record]} {

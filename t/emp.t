@@ -19,3 +19,13 @@
     % exec shp -e {name, _, 0 { ! name }} t/fixture/emp.data
     Beth 
     Dan 
+
+## Print NR for each record
+
+    % exec shp -e {... { ! NR }} t/fixture/emp.data
+    1 
+    2 
+    3 
+    4 
+    5 
+    6 
