@@ -396,8 +396,6 @@ namespace eval sheepruntime {
             set f [open "|shpfront.tcl [lrange $argv 1 end]"]
             set interp [interp create -safe]
             while {[info exists sheepruntime::__patbody($::sheepruntime::__mode)]} {
-                if {[eof $f]} { break }
-
                 ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
                 set ::sheepruntime::__! {}
 
@@ -407,6 +405,8 @@ namespace eval sheepruntime {
                     if {$line == "#"} { break }
                     set input "$input$line\n"
                 }
+                if {[eof $f]} { break }
+
                 ::sheepruntime::debug "input=$input"
 
                 set record [interp eval $interp set record "{$input}"]
