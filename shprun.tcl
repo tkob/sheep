@@ -395,10 +395,11 @@ namespace eval sheepruntime {
         set ::sheepruntime::__mode __default
 
         # If there are no pattern-bodies, input files are not read at all
-        if {[info exists sheepruntime::__patbody($::sheepruntime::__mode)]} {
+        if {[array size ::sheepruntime::__patbody] > 0 ||
+            [llength [info procs __END]] > 0} {
             set f [open "|shpfront.tcl [lrange $argv 1 end]"]
             set interp [interp create -safe]
-            while {[info exists sheepruntime::__patbody($::sheepruntime::__mode)]} {
+            while {1} {
                 ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
                 set ::sheepruntime::__! {}
 
@@ -416,10 +417,12 @@ namespace eval sheepruntime {
                 ::sheepruntime::debug "record=$record"
                 incr NR
 
-                foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
-                    if {[${__pb} {*}$record]} {
-                        ::sheepruntime::emitbang
-                        break
+                if {[array names ::sheepruntime::__patbody -exact $::sheepruntime::__mode] != {}} {
+                    foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
+                        if {[${__pb} {*}$record]} {
+                            ::sheepruntime::emitbang
+                            break
+                        }
                     }
                 }
             }

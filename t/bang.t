@@ -1,6 +1,6 @@
 # bang.shp
 
-    % exec shp t/fixture/bang.shp
+    % exec shp t/fixture/bang.shp t/fixture/emp.data
     hello 
     hello world 
     hello world 2 ! 
