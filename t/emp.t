@@ -29,3 +29,8 @@
     4 
     5 
     6 
+
+## Print number of records
+
+    % exec shp -e {END { ! NR }} t/fixture/emp.data
+    6 
