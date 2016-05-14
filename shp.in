@@ -35,7 +35,7 @@ shp_arg_f=
 while getopts e:f:h shp_opt; do
   AS_CASE([$shp_opt],
     [e], [shp_arg_e=$OPTARG],
-    [f], [shp_arg_e=$OPTARG])
+    [f], [shp_arg_f=$OPTARG])
 done
 shift `expr $OPTIND - 1`
 
