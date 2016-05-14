@@ -398,7 +398,7 @@ namespace eval sheepruntime {
         if {[array size ::sheepruntime::__patbody] > 0 ||
             [llength [info procs __END]] > 0} {
             set cmd [list $env(shp_front)]
-            lappend cmd [lrange $argv 1 end]
+            lappend cmd {*}[lrange $argv 1 end]
             set f [open |$cmd]
             set interp [interp create -safe]
             while {1} {
