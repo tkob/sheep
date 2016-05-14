@@ -379,7 +379,7 @@ namespace eval sheepruntime {
     }
 
     proc main {} {
-        global argv
+        global argv env
         ::sheepruntime::getoptions argv
 
         source [lindex $argv 0]
@@ -397,7 +397,9 @@ namespace eval sheepruntime {
         # If there are no pattern-bodies, input files are not read at all
         if {[array size ::sheepruntime::__patbody] > 0 ||
             [llength [info procs __END]] > 0} {
-            set f [open "|shpfront.tcl [lrange $argv 1 end]"]
+            set cmd [list $env(shp_front)]
+            lappend cmd [lrange $argv 1 end]
+            set f [open |$cmd]
             set interp [interp create -safe]
             while {1} {
                 ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
