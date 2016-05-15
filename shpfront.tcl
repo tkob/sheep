@@ -22,9 +22,10 @@ proc awkread {f} {
             }
         }
         puts $record
-        puts "#"
     }
 }
+
+fconfigure stdout -encoding utf-8
 
 if {[llength $argv] > 0} {
     foreach filename $argv {

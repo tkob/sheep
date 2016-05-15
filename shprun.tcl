@@ -400,30 +400,24 @@ namespace eval sheepruntime {
             set cmd [list $env(shp_front)]
             lappend cmd {*}[lrange $argv 1 end]
             set f [open |$cmd]
+            fconfigure $f -encoding utf-8
             set interp [interp create -safe]
-            while {1} {
+            while {[gets $f line] >= 0} {
+                ::sheepruntime::debug "line=$line"
                 ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
                 set ::sheepruntime::__! {}
 
-                set input ""
-                while {[gets $f line] >= 0} {
-                    ::sheepruntime::debug "line=$line"
-                    if {$line == "#"} { break }
-                    set input "$input$line\n"
-                }
-                if {[eof $f]} { break }
+                if {[lindex $line 0] != "%"} {
+                    set record [interp eval $interp set record "{$line}"]
+                    ::sheepruntime::debug "record=$record"
+                    incr NR
 
-                ::sheepruntime::debug "input=$input"
-
-                set record [interp eval $interp set record "{$input}"]
-                ::sheepruntime::debug "record=$record"
-                incr NR
-
-                if {[array names ::sheepruntime::__patbody -exact $::sheepruntime::__mode] != {}} {
-                    foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
-                        if {[${__pb} {*}$record]} {
-                            ::sheepruntime::emitbang
-                            break
+                    if {[array names ::sheepruntime::__patbody -exact $::sheepruntime::__mode] != {}} {
+                        foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
+                            if {[${__pb} {*}$record]} {
+                                ::sheepruntime::emitbang
+                                break
+                            }
                         }
                     }
                 }
