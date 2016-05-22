@@ -8,6 +8,9 @@ shp: shp.in
 	autom4te -l M4sh -o $@ $<
 	perl -i -pne 's/^\s*export\s+(LC_ALL|LANGUAGE)\s*$$//' $@
 
+%.sml: %.sml.in
+	autom4te -l m4sugar -o $@ $<
+
 shpc: $(SRC) shpc.mlb
 	mlton shpc.mlb
 
