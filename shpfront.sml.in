@@ -1,0 +1,13 @@
+(* m4_divert(0)dnl *)
+structure SheepFront = struct
+  fun main () =
+        let
+          val args = CommandLine.arguments ()
+        in
+          ()
+        end
+end
+
+fun main () = SheepFront.main ()
+
+val () = main ()

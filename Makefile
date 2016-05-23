@@ -1,6 +1,8 @@
 SRC = alpha.sml closure.sml fv.sml gental.sml global.sml shpc.sml parse.sml parsestr.sml scan.ulex.sml set.sml
 
-check: shp shpc
+SHPFRONT_SRC = shpfront.sml
+
+check: shp shpc shpfront
 	rm -f log.txt
 	prove --exec 't/do-test -log log.txt'
 
@@ -13,6 +15,9 @@ shp: shp.in
 
 shpc: $(SRC) shpc.mlb
 	mlton shpc.mlb
+
+shpfront: $(SHPFRONT_SRC) shpfront.mlb
+	mlton shpfront.mlb
 
 parse.sml scan.ulex.sml: parse.cf
 	proglr -o $@ -l scan.ulex $<
