@@ -1,10 +1,81 @@
 (* m4_divert(0)dnl *)
 structure SheepFront = struct
+  fun isEntier s =
+        let
+          val dropMinus = case explode s of #"-"::cs => cs | cs => cs
+        in
+          List.all Char.isDigit dropMinus
+        end
+  fun isTrue "TRUE" = true
+    | isTrue "True" = true
+    | isTrue "true" = true
+    | isTrue _      = false
+  fun isFalse "FALSE" = true
+    | isFalse "False" = true
+    | isFalse "false" = true
+    | isFalse _       = false
+  fun escapeAndPrint s =
+        let
+          val s = Substring.full s
+          fun p #"\"" = print "\\\""
+            | p c = TextIO.output1 (TextIO.stdOut, c)
+        in
+          Substring.app p s
+        end
+  fun awkRead ins =
+        let
+          fun println s = (print s; print "\n")
+          val scan = CSV.scanAwk TextIO.StreamIO.input1
+          fun loop ins =
+                case scan ins of
+                     NONE => ()
+                   | SOME (record, ins) =>
+                       let
+                         fun emitField field = (
+                               if isEntier field then
+                                 print field
+                               else if isTrue field then
+                                 print "true"
+                               else if isFalse field then
+                                 print "false"
+                               else (
+                                 print "{%str \"";
+                                 escapeAndPrint field;
+                                 print "\"}");
+                               print " ")
+                       in
+                         List.app emitField record;
+                         print "\n";
+                         loop ins
+                       end
+        in
+          loop ins
+        end
+
   fun main () =
         let
           val args = CommandLine.arguments ()
         in
-          ()
+          if length args > 0 then
+            let
+              fun f fileName =
+                    let
+                      val ins = TextIO.openIn fileName
+                      fun release () = TextIO.closeIn ins
+                    in
+                      let
+                        val ins = TextIO.getInstream TextIO.stdIn
+                      in
+                        awkRead ins;
+                        release ()
+                      end
+                      handle e => (release (); raise e)
+                    end
+            in
+              List.app f args
+            end
+          else
+            awkRead (TextIO.getInstream TextIO.stdIn)
         end
 end
 
