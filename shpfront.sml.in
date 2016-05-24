@@ -64,7 +64,7 @@ structure SheepFront = struct
                       fun release () = TextIO.closeIn ins
                     in
                       let
-                        val ins = TextIO.getInstream TextIO.stdIn
+                        val ins = TextIO.getInstream ins
                       in
                         awkRead ins;
                         release ()
