@@ -6,6 +6,11 @@ structure SheepFront = struct
         in
           List.all Char.isDigit dropMinus
         end
+  fun isDouble s =
+        case Real.fromString s of
+             NONE => false
+           | SOME _ =>
+               not (Substring.isSubstring "~" (Substring.full s))
   fun isTrue "TRUE" = true
     | isTrue "True" = true
     | isTrue "true" = true
@@ -33,6 +38,8 @@ structure SheepFront = struct
                        let
                          fun emitField field = (
                                if isEntier field then
+                                 print field
+                               else if isDouble field then
                                  print field
                                else if isTrue field then
                                  print "true"
