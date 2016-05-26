@@ -84,6 +84,36 @@ structure SheepFront = struct
           else
             awkRead (TextIO.getInstream TextIO.stdIn)
         end
+
+  fun execForOutput args =
+        let
+          fun mkInstream fd =
+                let
+                  val reader = Posix.IO.mkTextReader
+                      {fd = fd, name = "", initBlkMode = true}
+                  val instream = TextIO.StreamIO.mkInstream (reader, "")
+                in
+                  instream
+                end
+          val c2p = Posix.IO.pipe ()
+        in
+          case Posix.Process.fork () of
+               NONE => (* child *)
+                 let
+                   val cmd = hd args
+                 in
+                   Posix.IO.dup2 {old = #outfd c2p, new = Posix.FileSys.stdout};
+                   Posix.IO.close (#infd c2p);
+                   Posix.Process.execp (cmd, args)
+                 end
+             | SOME pid => (* parent *)
+                 let
+                   val ins = mkInstream (#infd c2p)
+                 in
+                   Posix.IO.close (#outfd c2p);
+                   ins
+                 end
+        end
 end
 
 fun main () = SheepFront.main ()
