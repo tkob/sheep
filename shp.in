@@ -43,7 +43,7 @@ AS_INIT_GENERATED([$shp_front])
 AS_IF([test -n "$shp_arg_f"], [
   AS_ECHO_N(["exec $shp_arg_f"]) >> $shp_front
 ], [
-  AS_ECHO_N(["exec ${shp_mydir}shpfront.tcl"]) >> $shp_front
+  AS_ECHO_N(["exec ${shp_mydir}shpfront"]) >> $shp_front
 ])
 AS_ECHO(["AS_ESCAPE([ "$@"])"]) >> $shp_front
 
