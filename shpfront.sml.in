@@ -59,32 +59,6 @@ structure SheepFront = struct
           loop ins
         end
 
-  fun main () =
-        let
-          val args = CommandLine.arguments ()
-        in
-          if length args > 0 then
-            let
-              fun f fileName =
-                    let
-                      val ins = TextIO.openIn fileName
-                      fun release () = TextIO.closeIn ins
-                    in
-                      let
-                        val ins = TextIO.getInstream ins
-                      in
-                        awkRead ins;
-                        release ()
-                      end
-                      handle e => (release (); raise e)
-                    end
-            in
-              List.app f args
-            end
-          else
-            awkRead (TextIO.getInstream TextIO.stdIn)
-        end
-
   fun execForOutput args =
         let
           fun mkInstream fd =
@@ -114,6 +88,55 @@ structure SheepFront = struct
                    ins
                  end
         end
+
+  fun fail msg = raise Fail msg
+  fun parseOptions args =
+        let
+          fun parse (options, "-encoding"::args) =
+                (case args of
+                      [[]] => fail "-encoding requires an argument"
+                    | encoding::args => parse ({encoding = encoding}, args))
+            | parse (options, arg::args) =
+                if String.isPrefix "-"  arg
+                then fail ("unknown option: " ^ arg)
+                else (options, arg::args)
+            | parse (options, [[]]) =
+                (options, [[]])
+        in
+          parse ({encoding = "utf-8"}, args)
+        end
+
+  fun main () =
+        let
+          val (options, args) = parseOptions (CommandLine.arguments ())
+        in
+          if length args > 0 then
+            let
+              fun f fileName =
+                    let
+                      val args = [["shpconv.tcl",
+                                   "-encoding", (#encoding options),
+                                   fileName]]
+                      val ins = execForOutput args
+                      fun release () = TextIO.StreamIO.closeIn ins
+                    in
+                      (awkRead ins; release ())
+                      handle e => (release (); raise e)
+                    end
+            in
+              List.app f args
+            end
+          else
+            let
+              val args = [["shpconv.tcl", "-encoding", (#encoding options)]]
+              val ins = execForOutput args
+              fun release () = TextIO.StreamIO.closeIn ins
+            in
+              (awkRead ins; release ())
+              handle e => (release (); raise e)
+            end
+        end
+
 end
 
 fun main () = SheepFront.main ()
