@@ -22,6 +22,55 @@ structure TypeUtils = struct
     | isFalse _       = false
 end
 
+structure EncodingIO = struct
+  fun execForOutput args =
+        let
+          fun mkInstream fd =
+                let
+                  val reader = Posix.IO.mkTextReader
+                      {fd = fd, name = "", initBlkMode = true}
+                  val instream = TextIO.StreamIO.mkInstream (reader, "")
+                in
+                  instream
+                end
+          val c2p = Posix.IO.pipe ()
+        in
+          case Posix.Process.fork () of
+               NONE => (* child *)
+                 let
+                   val cmd = hd args
+                 in
+                   Posix.IO.dup2 {old = #outfd c2p, new = Posix.FileSys.stdout};
+                   Posix.IO.close (#infd c2p);
+                   Posix.Process.execp (cmd, args)
+                 end
+             | SOME pid => (* parent *)
+                 let
+                   val ins = mkInstream (#infd c2p)
+                 in
+                   Posix.IO.close (#outfd c2p);
+                   ins
+                 end
+        end
+
+  fun openIn (fileName, encoding) =
+        let
+          val args = [["shpconv.tcl", "-encoding", encoding, fileName]]
+          val ins = execForOutput args
+        in
+          ins
+        end
+
+  fun getStdIn encoding =
+        let
+          val args = [["shpconv.tcl", "-encoding", encoding]]
+          val ins = execForOutput args
+        in
+          ins
+        end
+
+end
+
 structure SheepFront = struct
   open TypeUtils
 
@@ -65,36 +114,6 @@ structure SheepFront = struct
           loop ins
         end
 
-  fun execForOutput args =
-        let
-          fun mkInstream fd =
-                let
-                  val reader = Posix.IO.mkTextReader
-                      {fd = fd, name = "", initBlkMode = true}
-                  val instream = TextIO.StreamIO.mkInstream (reader, "")
-                in
-                  instream
-                end
-          val c2p = Posix.IO.pipe ()
-        in
-          case Posix.Process.fork () of
-               NONE => (* child *)
-                 let
-                   val cmd = hd args
-                 in
-                   Posix.IO.dup2 {old = #outfd c2p, new = Posix.FileSys.stdout};
-                   Posix.IO.close (#infd c2p);
-                   Posix.Process.execp (cmd, args)
-                 end
-             | SOME pid => (* parent *)
-                 let
-                   val ins = mkInstream (#infd c2p)
-                 in
-                   Posix.IO.close (#outfd c2p);
-                   ins
-                 end
-        end
-
   fun fail msg = raise Fail msg
   fun parseOptions args =
         let
@@ -120,10 +139,7 @@ structure SheepFront = struct
             let
               fun f fileName =
                     let
-                      val args = [["shpconv.tcl",
-                                   "-encoding", (#encoding options),
-                                   fileName]]
-                      val ins = execForOutput args
+                      val ins = EncodingIO.openIn (fileName, #encoding options)
                       fun release () = TextIO.StreamIO.closeIn ins
                     in
                       (awkRead ins; release ())
@@ -134,8 +150,7 @@ structure SheepFront = struct
             end
           else
             let
-              val args = [["shpconv.tcl", "-encoding", (#encoding options)]]
-              val ins = execForOutput args
+              val ins = EncodingIO.getStdIn (#encoding options)
               fun release () = TextIO.StreamIO.closeIn ins
             in
               (awkRead ins; release ())
