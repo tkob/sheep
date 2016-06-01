@@ -71,7 +71,7 @@ structure EncodingIO = struct
 
 end
 
-structure SheepFront = struct
+structure AwkReader = struct
   open TypeUtils
 
   fun escapeAndPrint s =
@@ -113,7 +113,9 @@ structure SheepFront = struct
         in
           loop ins
         end
+end
 
+structure SheepFront = struct
   fun fail msg = raise Fail msg
   fun parseOptions args =
         let
@@ -142,7 +144,7 @@ structure SheepFront = struct
                       val ins = EncodingIO.openIn (fileName, #encoding options)
                       fun release () = TextIO.StreamIO.closeIn ins
                     in
-                      (awkRead ins; release ())
+                      (AwkReader.awkRead ins; release ())
                       handle e => (release (); raise e)
                     end
             in
@@ -153,7 +155,7 @@ structure SheepFront = struct
               val ins = EncodingIO.getStdIn (#encoding options)
               fun release () = TextIO.StreamIO.closeIn ins
             in
-              (awkRead ins; release ())
+              (AwkReader.awkRead ins; release ())
               handle e => (release (); raise e)
             end
         end
