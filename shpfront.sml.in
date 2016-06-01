@@ -1,5 +1,6 @@
 (* m4_divert(0)dnl *)
-structure SheepFront = struct
+
+structure TypeUtils = struct
   fun isEntier s =
         let
           val dropMinus = case explode s of #"-"::cs => cs | cs => cs
@@ -19,6 +20,11 @@ structure SheepFront = struct
     | isFalse "False" = true
     | isFalse "false" = true
     | isFalse _       = false
+end
+
+structure SheepFront = struct
+  open TypeUtils
+
   fun escapeAndPrint s =
         let
           val s = Substring.full s
