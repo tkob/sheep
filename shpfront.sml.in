@@ -122,7 +122,39 @@ structure SheepFront = struct
           fun parse (options, "-encoding"::args) =
                 (case args of
                       [[]] => fail "-encoding requires an argument"
-                    | encoding::args => parse ({encoding = encoding}, args))
+                    | encoding::args =>
+                        let
+                          val options = {
+                                encoding = encoding,
+                                format = #format options,
+                                options = #options options }
+                        in
+                          parse (options, args)
+                        end)
+            | parse (options, "-format"::args) =
+                (case args of
+                      [[]] => fail "-format requires an argument"
+                    | format::args =>
+                        let
+                          val options = {
+                                encoding = #encoding options,
+                                format = format,
+                                options = #options options }
+                        in
+                          parse (options, args)
+                        end)
+            | parse (options, "-opts"::args) =
+                (case args of
+                      [[]] => fail "-opts requires an argument"
+                    | opts::args =>
+                        let
+                          val options = {
+                                encoding = #encoding options,
+                                format = #format options,
+                                options = opts }
+                        in
+                          parse (options, args)
+                        end)
             | parse (options, arg::args) =
                 if String.isPrefix "-"  arg
                 then fail ("unknown option: " ^ arg)
@@ -130,7 +162,7 @@ structure SheepFront = struct
             | parse (options, [[]]) =
                 (options, [[]])
         in
-          parse ({encoding = "utf-8"}, args)
+          parse ({encoding = "utf-8", format = "awk", options = ""}, args)
         end
 
   fun main () =
