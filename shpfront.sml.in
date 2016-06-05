@@ -155,6 +155,8 @@ structure SheepFront = struct
                         in
                           parse (options, args)
                         end)
+            | parse (options, "--"::args) =
+                (options, args)
             | parse (options, arg::args) =
                 if String.isPrefix "-"  arg
                 then fail ("unknown option: " ^ arg)
