@@ -117,6 +117,30 @@ end
 
 structure SheepFront = struct
   fun fail msg = raise Fail msg
+  fun splitBy delim s =
+        let
+          val (first, rest) = Substring.splitl (fn c => c <> delim) s
+        in
+          (Substring.string first, Substring.string (Substring.triml 1 rest))
+        end
+  fun parseOpts opts =
+        let
+          val opts = Substring.full opts
+          fun parseFormat s =
+                let
+                  val (format, s') = Substring.splitl Char.isAlpha opts
+                in
+                  if Substring.sub (s', 0) = #":" then
+                    (Substring.string format, Substring.triml 1 s')
+                  else
+                    ("awk", s)
+                end
+          val (format, opts) = parseFormat opts
+          val pairs = Substring.tokens (fn c => c = #",") opts
+          val keyValues = map (splitBy #"=") pairs
+        in
+          (format, keyValues)
+        end
   fun parseOptions args =
         let
           fun parse (options, "-encoding"::args) =
@@ -131,26 +155,15 @@ structure SheepFront = struct
                         in
                           parse (options, args)
                         end)
-            | parse (options, "-format"::args) =
-                (case args of
-                      [[]] => fail "-format requires an argument"
-                    | format::args =>
-                        let
-                          val options = {
-                                encoding = #encoding options,
-                                format = format,
-                                options = #options options }
-                        in
-                          parse (options, args)
-                        end)
             | parse (options, "-opts"::args) =
                 (case args of
                       [[]] => fail "-opts requires an argument"
                     | opts::args =>
                         let
+                          val (format, opts) = parseOpts opts
                           val options = {
                                 encoding = #encoding options,
-                                format = #format options,
+                                format = format,
                                 options = opts }
                         in
                           parse (options, args)
@@ -164,7 +177,7 @@ structure SheepFront = struct
             | parse (options, [[]]) =
                 (options, [[]])
         in
-          parse ({encoding = "utf-8", format = "awk", options = ""}, args)
+          parse ({encoding = "utf-8", format = "awk", options = [[]]}, args)
         end
 
   fun main () =
