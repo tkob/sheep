@@ -153,28 +153,13 @@ structure SheepFront = struct
         else getOpt key keyValues
   fun parseOptions args =
         let
-          fun parse (options, "-encoding"::args) =
-                (case args of
-                      [[]] => fail "-encoding requires an argument"
-                    | encoding::args =>
-                        let
-                          val options = {
-                                encoding = SOME encoding,
-                                format = #format options,
-                                options = #options options }
-                        in
-                          parse (options, args)
-                        end)
-            | parse (options, "-opts"::args) =
+          fun parse (options, "-opts"::args) =
                 (case args of
                       [[]] => fail "-opts requires an argument"
                     | opts::args =>
                         let
                           val (format, opts) = parseOpts opts
-                          val options = {
-                                encoding = #encoding options,
-                                format = format,
-                                options = opts }
+                          val options = {format = format, options = opts}
                         in
                           parse (options, args)
                         end)
@@ -187,18 +172,18 @@ structure SheepFront = struct
             | parse (options, [[]]) =
                 (options, [[]])
         in
-          parse ({encoding = NONE, format = "awk", options = [[]]}, args)
+          parse ({format = "awk", options = [[]]}, args)
         end
 
   fun main () =
         let
-          val (options, args) = parseOptions (CommandLine.arguments ())
+          val ({format, options}, args) = parseOptions (CommandLine.arguments ())
         in
           if length args > 0 then
             let
               fun f fileName =
                     let
-                      val ins = EncodingIO.openIn (fileName, #encoding options)
+                      val ins = EncodingIO.openIn (fileName, getOpt "encoding" options)
                       fun release () = TextIO.StreamIO.closeIn ins
                     in
                       (AwkReader.awkRead ins; release ())
@@ -209,7 +194,7 @@ structure SheepFront = struct
             end
           else
             let
-              val ins = EncodingIO.getStdIn (#encoding options)
+              val ins = EncodingIO.getStdIn (getOpt "encoding" options)
               fun release () = TextIO.StreamIO.closeIn ins
             in
               (AwkReader.awkRead ins; release ())
