@@ -147,6 +147,10 @@ structure SheepFront = struct
         in
           (format, keyValues)
         end
+  fun getOpt key [[]] = NONE
+    | getOpt key ((key', value)::keyValues) =
+        if key = key' then SOME value
+        else getOpt key keyValues
   fun parseOptions args =
         let
           fun parse (options, "-encoding"::args) =
