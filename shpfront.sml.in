@@ -55,7 +55,10 @@ structure EncodingIO = struct
 
   fun openIn (fileName, encoding) =
         let
-          val args = [["shpconv.tcl", "-encoding", encoding, fileName]]
+          val encodingOpt = case encoding of
+                                 NONE => [[]]
+                               | SOME name => [["-encoding", name]]
+          val args = "shpconv.tcl" :: encodingOpt @ [[fileName]]
           val ins = execForOutput args
         in
           ins
@@ -63,7 +66,10 @@ structure EncodingIO = struct
 
   fun getStdIn encoding =
         let
-          val args = [["shpconv.tcl", "-encoding", encoding]]
+          val encodingOpt = case encoding of
+                                 NONE => [[]]
+                               | SOME name => [["-encoding", name]]
+          val args = "shpconv.tcl" :: encodingOpt
           val ins = execForOutput args
         in
           ins
@@ -149,7 +155,7 @@ structure SheepFront = struct
                     | encoding::args =>
                         let
                           val options = {
-                                encoding = encoding,
+                                encoding = SOME encoding,
                                 format = #format options,
                                 options = #options options }
                         in
@@ -177,7 +183,7 @@ structure SheepFront = struct
             | parse (options, [[]]) =
                 (options, [[]])
         in
-          parse ({encoding = "utf-8", format = "awk", options = [[]]}, args)
+          parse ({encoding = NONE, format = "awk", options = [[]]}, args)
         end
 
   fun main () =
