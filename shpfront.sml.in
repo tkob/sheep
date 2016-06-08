@@ -147,10 +147,10 @@ structure SheepFront = struct
         in
           (format, keyValues)
         end
-  fun getOpt key [[]] = NONE
-    | getOpt key ((key', value)::keyValues) =
+  fun lookup key [[]] = NONE
+    | lookup key ((key', value)::keyValues) =
         if key = key' then SOME value
-        else getOpt key keyValues
+        else lookup key keyValues
   fun parseOptions args =
         let
           fun parse (options, "-opts"::args) =
@@ -183,7 +183,7 @@ structure SheepFront = struct
             let
               fun f fileName =
                     let
-                      val ins = EncodingIO.openIn (fileName, getOpt "encoding" options)
+                      val ins = EncodingIO.openIn (fileName, lookup "encoding" options)
                       fun release () = TextIO.StreamIO.closeIn ins
                     in
                       (AwkReader.awkRead ins; release ())
@@ -194,7 +194,7 @@ structure SheepFront = struct
             end
           else
             let
-              val ins = EncodingIO.getStdIn (getOpt "encoding" options)
+              val ins = EncodingIO.getStdIn (lookup "encoding" options)
               fun release () = TextIO.StreamIO.closeIn ins
             in
               (AwkReader.awkRead ins; release ())
