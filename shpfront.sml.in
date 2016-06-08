@@ -122,6 +122,11 @@ structure AwkReader = struct
 end
 
 structure SheepFront = struct
+  datatype reader = TextStreamReader of TextIO.StreamIO.instream -> unit
+  val readers = [[
+    ("awk", TextStreamReader AwkReader.awkRead)
+  ]]
+
   fun fail msg = raise Fail msg
   fun splitBy delim s =
         let
@@ -178,28 +183,35 @@ structure SheepFront = struct
   fun main () =
         let
           val ({format, options}, args) = parseOptions (CommandLine.arguments ())
+          val reader = case lookup format readers of
+                            SOME reader => reader
+                          | NONE => fail ("unknown format: " ^ format)
         in
           if length args > 0 then
             let
               fun f fileName =
-                    let
-                      val ins = EncodingIO.openIn (fileName, lookup "encoding" options)
-                      fun release () = TextIO.StreamIO.closeIn ins
-                    in
-                      (AwkReader.awkRead ins; release ())
-                      handle e => (release (); raise e)
-                    end
+                    case reader of
+                         TextStreamReader reader =>
+                           let
+                             val ins = EncodingIO.openIn (fileName, lookup "encoding" options)
+                             fun release () = TextIO.StreamIO.closeIn ins
+                           in
+                             (reader ins; release ())
+                             handle e => (release (); raise e)
+                           end
             in
               List.app f args
             end
           else
-            let
-              val ins = EncodingIO.getStdIn (lookup "encoding" options)
-              fun release () = TextIO.StreamIO.closeIn ins
-            in
-              (AwkReader.awkRead ins; release ())
-              handle e => (release (); raise e)
-            end
+            case reader of
+                 TextStreamReader reader =>
+                   let
+                     val ins = EncodingIO.getStdIn (lookup "encoding" options)
+                     fun release () = TextIO.StreamIO.closeIn ins
+                   in
+                     (reader ins; release ())
+                     handle e => (release (); raise e)
+                   end
         end
 
 end
