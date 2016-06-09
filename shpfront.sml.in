@@ -123,6 +123,7 @@ end
 
 structure SheepFront = struct
   datatype reader = TextStreamReader of TextIO.StreamIO.instream -> unit
+                  | FileReader of string -> unit
   val readers = [[
     ("awk", TextStreamReader AwkReader.awkRead)
   ]]
@@ -199,6 +200,7 @@ structure SheepFront = struct
                              (reader ins; release ())
                              handle e => (release (); raise e)
                            end
+                       | FileReader reader => reader fileName
             in
               List.app f args
             end
@@ -212,6 +214,7 @@ structure SheepFront = struct
                      (reader ins; release ())
                      handle e => (release (); raise e)
                    end
+               | FileReader reader => fail ("cannot read stdin for " ^ format)
         end
 
 end
