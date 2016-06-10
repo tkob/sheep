@@ -1,5 +1,3 @@
-(* m4_divert(0)dnl *)
-
 structure TypeUtils = struct
   fun isEntier s =
         let
@@ -56,9 +54,9 @@ structure EncodingIO = struct
   fun openIn (fileName, encoding) =
         let
           val encodingOpt = case encoding of
-                                 NONE => [[]]
-                               | SOME name => [["-encoding", name]]
-          val args = "shpconv.tcl" :: encodingOpt @ [[fileName]]
+                                 NONE => []
+                               | SOME name => ["-encoding", name]
+          val args = "shpconv.tcl" :: encodingOpt @ [fileName]
           val ins = execForOutput args
         in
           ins
@@ -67,8 +65,8 @@ structure EncodingIO = struct
   fun getStdIn encoding =
         let
           val encodingOpt = case encoding of
-                                 NONE => [[]]
-                               | SOME name => [["-encoding", name]]
+                                 NONE => []
+                               | SOME name => ["-encoding", name]
           val args = "shpconv.tcl" :: encodingOpt
           val ins = execForOutput args
         in
@@ -124,9 +122,9 @@ end
 structure SheepFront = struct
   datatype reader = TextStreamReader of TextIO.StreamIO.instream -> unit
                   | FileReader of string -> unit
-  val readers = [[
+  val readers = [
     ("awk", TextStreamReader AwkReader.awkRead)
-  ]]
+  ]
 
   fun fail msg = raise Fail msg
   fun splitBy delim s =
@@ -153,7 +151,7 @@ structure SheepFront = struct
         in
           (format, keyValues)
         end
-  fun lookup key [[]] = NONE
+  fun lookup key [] = NONE
     | lookup key ((key', value)::keyValues) =
         if key = key' then SOME value
         else lookup key keyValues
@@ -161,7 +159,7 @@ structure SheepFront = struct
         let
           fun parse (options, "-opts"::args) =
                 (case args of
-                      [[]] => fail "-opts requires an argument"
+                      [] => fail "-opts requires an argument"
                     | opts::args =>
                         let
                           val (format, opts) = parseOpts opts
@@ -175,15 +173,15 @@ structure SheepFront = struct
                 if String.isPrefix "-"  arg
                 then fail ("unknown option: " ^ arg)
                 else (options, arg::args)
-            | parse (options, [[]]) =
-                (options, [[]])
+            | parse (options, []) =
+                (options, [])
         in
-          parse ({format = "awk", options = [[]]}, args)
+          parse ({format = "awk", options = []}, args)
         end
 
-  fun main () =
+  fun main (name, arguments) =
         let
-          val ({format, options}, args) = parseOptions (CommandLine.arguments ())
+          val ({format, options}, args) = parseOptions arguments
           val reader = case lookup format readers of
                             SOME reader => reader
                           | NONE => fail ("unknown format: " ^ format)
@@ -219,6 +217,4 @@ structure SheepFront = struct
 
 end
 
-fun main () = SheepFront.main ()
-
-val () = main ()
+fun main () = SheepFront.main (CommandLine.name (), CommandLine.arguments ())
