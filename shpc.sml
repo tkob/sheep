@@ -37,5 +37,3 @@ fun main () =
   in
       OS.Process.exit (SheepCompiler.main (name, arguments))
   end
-
-val _ = main ()
