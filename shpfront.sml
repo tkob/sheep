@@ -179,7 +179,7 @@ structure SheepFront = struct
           parse ({format = "awk", options = []}, args)
         end
 
-  fun main (name, arguments) =
+  fun main (_, arguments) =
         let
           val ({format, options}, args) = parseOptions arguments
           val reader = case lookup format readers of
@@ -212,9 +212,16 @@ structure SheepFront = struct
                      (reader ins; release ())
                      handle e => (release (); raise e)
                    end
-               | FileReader reader => fail ("cannot read stdin for " ^ format)
+               | FileReader reader => fail ("cannot read stdin for " ^ format);
+          OS.Process.success
         end
 
 end
 
-fun main () = SheepFront.main (CommandLine.name (), CommandLine.arguments ())
+fun main () =
+  let
+    val name = CommandLine.name ()
+    val arguments = CommandLine.arguments ()
+  in
+      OS.Process.exit (SheepFront.main (name, arguments))
+  end
