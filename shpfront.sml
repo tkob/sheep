@@ -78,6 +78,11 @@ end
 structure AwkReader = struct
   open TypeUtils
 
+  fun appHeadAndTail fHead fTail [] = ()
+    | appHeadAndTail fHead fTail (x::xs) = (
+        fHead x;
+        List.app fTail xs)
+
   fun escapeAndPrint s =
         let
           val s = Substring.full s
@@ -95,7 +100,7 @@ structure AwkReader = struct
                      NONE => ()
                    | SOME (record, ins) =>
                        let
-                         fun emitField field = (
+                         fun emitField field =
                                if isEntier field then
                                  print field
                                else if isDouble field then
@@ -107,10 +112,12 @@ structure AwkReader = struct
                                else (
                                  print "{%str \"";
                                  escapeAndPrint field;
-                                 print "\"}");
-                               print " ")
+                                 print "\"}")
+                         fun emitSpaceAndField field = (
+                               print " ";
+                               emitField field)
                        in
-                         List.app emitField record;
+                         appHeadAndTail emitField emitSpaceAndField record;
                          print "\n";
                          loop ins
                        end
