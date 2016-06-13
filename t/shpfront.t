@@ -18,3 +18,23 @@
     % exec shpfront -opts encoding=utf-8 t/fixture/utf-8.txt t/fixture/utf-8.txt
     {%str "羊"}
     {%str "羊"}
+
+# Specify format explicitly
+
+    % exec shpfront -opts awk:encoding=utf-8 t/fixture/utf-8.txt
+    {%str "羊"}
+
+# Unknown format
+
+    % exec shpfront -opts unknown:encoding=utf-8 t/fixture/utf-8.txt
+    unhandled exception: Fail: unknown format: unknown
+
+# Unknown option
+
+    % exec shpfront -unknown -opts utf-8 t/fixture/utf-8.txt
+    unhandled exception: Fail: unknown option: -unknown
+
+# Stop option parsing
+
+    % exec shpfront -opts utf-8 -- t/fixture/utf-8.txt
+    {%str "羊"}
