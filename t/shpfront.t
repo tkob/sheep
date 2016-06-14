@@ -38,3 +38,8 @@
 
     % exec shpfront -opts utf-8 -- t/fixture/utf-8.txt
     {%str "羊"}
+
+# Various types
+
+    % exec echo {1 3.14 True true TRUE False false FALSE} | shpfront
+    1 3.14 true true true false false false
