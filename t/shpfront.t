@@ -41,5 +41,5 @@
 
 # Various types
 
-    % exec echo {1 3.14 True true TRUE False false FALSE} | shpfront
-    1 3.14 true true true false false false
+    % exec echo {1 -1 3.14 -3.14 True true TRUE False false FALSE} | shpfront
+    1 -1 3.14 -3.14 true true true false false false
