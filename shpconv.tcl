@@ -18,6 +18,9 @@ while {true} {
     } elseif {$first == "-encoding"} {
         lassign $argv encoding
         shift argv 1
+    } elseif {$first == "-translation"} {
+        lassign $argv translation
+        shift argv 1
     } else {
         puts "unknown option: $first"
         exit 1
@@ -28,8 +31,13 @@ chan configure stdout -encoding utf-8
 
 proc readIn {f} {
     global encoding
-    if {[info exists encoding]} {
+    global translation
+    if {[info exists encoding] && [info exists translation]} {
+        chan configure $f -encoding ${encoding} -translation ${translation}
+    } elseif {[info exists encoding]} {
         chan configure $f -encoding ${encoding}
+    } elseif {[info exists translation]} {
+        chan configure $f -translation ${translation}
     }
     chan copy $f stdout
 }
