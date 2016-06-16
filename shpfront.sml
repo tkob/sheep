@@ -124,13 +124,48 @@ structure AwkReader = struct
         in
           loop ins
         end
+
+  fun csvRead ins =
+        let
+          fun println s = (print s; print "\n")
+          val scan = CSV.scanCSV TextIO.StreamIO.input1
+          fun loop ins =
+                case scan ins of
+                     NONE => ()
+                   | SOME (record, ins) =>
+                       let
+                         fun emitField field =
+                               if isEntier field then
+                                 print field
+                               else if isDouble field then
+                                 print field
+                               else if isTrue field then
+                                 print "true"
+                               else if isFalse field then
+                                 print "false"
+                               else (
+                                 print "{%str \"";
+                                 escapeAndPrint field;
+                                 print "\"}")
+                         fun emitSpaceAndField field = (
+                               print " ";
+                               emitField field)
+                       in
+                         appHeadAndTail emitField emitSpaceAndField record;
+                         print "\n";
+                         loop ins
+                       end
+        in
+          loop ins
+        end
 end
 
 structure SheepFront = struct
   datatype reader = TextStreamReader of TextIO.StreamIO.instream -> unit
                   | FileReader of string -> unit
   val readers = [
-    ("awk", TextStreamReader AwkReader.awkRead)
+    ("awk", TextStreamReader AwkReader.awkRead),
+    ("csv", TextStreamReader AwkReader.csvRead)
   ]
 
   fun fail msg = raise Fail msg
