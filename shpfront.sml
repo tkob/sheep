@@ -180,7 +180,7 @@ structure SheepFront = struct
           val opts = Substring.full opts
           fun parseFormat s =
                 let
-                  val (format, s') = Substring.splitl Char.isAlpha opts
+                  val (format, s') = Substring.splitl Char.isAlpha s
                 in
                   if Substring.sub (s', 0) = #":" then
                     (Substring.string format, Substring.triml 1 s')
