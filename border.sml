@@ -4,6 +4,11 @@ structure Border = struct
   fun manhattan (H (x, y)) = x + y
     | manhattan (V (x, y)) = x + y
 
+  fun insert gt (x, []) = x::[]
+    | insert gt (x, y::ys) =
+        if gt (x, y) then x::y::ys
+        else y::(insert gt (x, ys))
+
   fun groupByDistance (maxDistance, borders) =
         let
           val groups = Array.array (maxDistance, [])
