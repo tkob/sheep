@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec rehearsal -command poly -ps1 '> ' -ps2 '# ' -anchor "$@"

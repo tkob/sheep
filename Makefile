@@ -4,7 +4,8 @@ SHPFRONT_SRC = shpfront.sml
 
 check: shp shpc shpfront
 	rm -f log.txt
-	prove --exec 't/do-test -log log.txt'
+	prove --exec 't/do-sml-test -log log.txt' t/sml/*.t
+	prove --exec 't/do-test -log log.txt' t/*.t
 
 shp: shp.in
 	autom4te -l M4sh -o $@ $<
