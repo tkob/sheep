@@ -9,9 +9,12 @@ structure Border = struct
     | gt (V (x1, _), V (x2, _)) = x1 > x2
     | gt (V (x1, _), H (x2, _)) = if x1 = x2 then false else x1 > x2
 
+  exception Duplicate
+
   fun insert gt (x, []) = x::[]
     | insert gt (x, y::ys) =
         if gt (x, y) then x::y::ys
+        else if x = y then raise Duplicate
         else y::(insert gt (x, ys))
 
   fun groupByDistance (maxDistance, borders) =
@@ -24,7 +27,8 @@ structure Border = struct
                   val distance = manhattan border
                   val group = Array.sub (groups, distance)
                 in
-                  Array.update (groups, distance, insert gt (border, group));
+                  Array.update (groups, distance, insert gt (border, group))
+                  handle Duplicate => ();
                   loop borders
                 end
         in
