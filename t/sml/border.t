@@ -108,3 +108,42 @@ val it = false: bool
 > isNeighbour (H (~1, 0), V (1, 0));
 val it = false: bool
 ```
+
+# merge
+
+```
+> merge [];
+val it = []: border list list
+```
+
+```
+> merge [H (0, 0)];
+val it = [[H (0, 0)]]: border list list
+```
+
+```
+> merge [H (0, 0), V (1, 0)];
+val it = [[V (1, 0), H (0, 0)]]: border list list
+```
+
+```
+> merge (groupByDistance (1, [H (0, 0), V (1, 0)]));
+val it = [[V (1, 0), H (0, 0)]]: border list list
+```
+
+```
+> merge (groupByDistance (2, [H (0, 0), V (1, 0), V (2, 0)]));
+val it = [[V (2, 0)], [V (1, 0), H (0, 0)]]: border list list
+```
+
+```
+> merge (groupByDistance (2, [H (0, 0), V (1, 0), V (2, 0)]));
+val it = [[V (2, 0)], [V (1, 0), H (0, 0)]]: border list list
+```
+
+```
+> merge (groupByDistance (5, [H (0, 0), V (0, 0), V (1, 0), H (2, 0), V (2, 0), V (3, 0), H (0, 1), H (2, 1), V (2, 1), V (3, 1), H (2, 2)]));
+val it =
+   [[H (2, 2), V (3, 1), V (2, 1), H (2, 1), V (3, 0), V (2, 0), H (2, 0)],
+    [H (0, 1), V (1, 0), V (0, 0), H (0, 0)]]: border list list
+```

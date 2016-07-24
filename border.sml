@@ -43,4 +43,35 @@ structure Border = struct
         in
           loop borders
         end
+
+  (* val hasNeighbour : border * border list -> bool *)
+  fun hasNeighbour (b, []) = false
+    | hasNeighbour (b, b'::bs) =
+        if manhattan b - manhattan b' > 1 then false
+        else
+          if isNeighbour (b, b') then true
+          else hasNeighbour (b, bs)
+
+  exception NoMerge
+
+  (* val merge'' : border * border list list -> border list list *)
+  (* merge'' (b, bss) = merges b into one of bss if it contains a neighbour of b.
+     Otherwise, [b] is prepended to bss *)
+  fun merge'' (b, []) = raise NoMerge
+    | merge'' (b, bs::bss) =
+        if hasNeighbour (b, bs) then (b::bs)::bss
+        else bs::merge'' (b, bss)
+
+  (* val merge' : border list * border list list -> border list list *)
+  fun merge' ([], merge'd) = merge'd
+    | merge' (b::bs, merge'd) =
+        let
+          val merge'd' = merge'' (b, merge'd) handle NoMerge => [b]::merge'd
+        in
+          merge' (bs, merge'd')
+        end
+
+  (* val merge : border list -> border list list *)
+  (* merge bs = groups neighbours in bs *)
+  fun merge bs = merge' (bs, [])
 end
