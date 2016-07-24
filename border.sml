@@ -17,6 +17,15 @@ structure Border = struct
         else if x = y then raise Duplicate
         else y::(insert gt (x, ys))
 
+  fun isNeighbour (H (x1, y1), H (x2, y2)) = y1 = y2 andalso abs (x1 - x2) = 1
+    | isNeighbour (V (x1, y1), V (x2, y2)) = x1 = x2 andalso abs (y1 - y2) = 1
+    | isNeighbour (V (vx, vy), H (hx, hy)) =
+        (vx = hx andalso vy = hy)
+        orelse (vx - 1 = hx andalso vy + 1 = hy)
+        orelse (vx - 1 = hx andalso vy = hy)
+        orelse (vx = hx andalso vy + 1 = hy)
+    | isNeighbour (b1 as H (_, _), b2 as V (_, _)) = isNeighbour (b2, b1)
+
   fun groupByDistance (maxDistance, borders) =
         let
           val groups = Array.array (maxDistance, [])

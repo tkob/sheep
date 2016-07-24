@@ -40,3 +40,71 @@ val it = [[H (0, 0)], [H (1, 0), H (0, 1)], [V (1, 1)]]: border list list
 > groupByDistance (3, [H (0, 0), V (1, 1), V (1, 1), H (1, 0)]);
 val it = [[H (0, 0)], [H (1, 0)], [V (1, 1)]]: border list list
 ```
+
+# isNeighbour - true
+
+```
+> isNeighbour (H (0, 0), V (0, 0));
+val it = true: bool
+```
+
+```
+> isNeighbour (H (0, 1), V (1, 0));
+val it = true: bool
+```
+
+```
+> isNeighbour (H (0, 1), V (0, 0));
+val it = true: bool
+```
+
+```
+> isNeighbour (H (0, 0), V (1, 0));
+val it = true: bool
+```
+
+# isNeighbour - false
+
+```
+> isNeighbour (H (0, 0), V (0, 1));
+val it = false: bool
+> isNeighbour (H (0, 0), V (~1, 0));
+val it = false: bool
+> isNeighbour (H (0, ~1), V (0, 0));
+val it = false: bool
+> isNeighbour (H (1, 0), V (0, 0));
+val it = false: bool
+```
+
+```
+> isNeighbour (H (0, 1), V (2, 0));
+val it = false: bool
+> isNeighbour (H (0, 1), V (1, ~1));
+val it = false: bool
+> isNeighbour (H (0, 2), V (1, 0));
+val it = false: bool
+> isNeighbour (H (~1, 1), V (1, 0));
+val it = false: bool
+```
+
+```
+> isNeighbour (H (0, 1), V (~1, 0));
+val it = false: bool
+> isNeighbour (H (0, 1), V (0, ~1));
+val it = false: bool
+> isNeighbour (H (0, 2), V (0, 0));
+val it = false: bool
+> isNeighbour (H (1, 1), V (0, 0));
+val it = false: bool
+```
+
+```
+> isNeighbour (H (0, 0), V (2, 0));
+val it = false: bool
+> isNeighbour (H (0, 0), V (1, 1));
+val it = false: bool
+> isNeighbour (H (0, ~1), V (1, 0));
+val it = false: bool
+> isNeighbour (H (~1, 0), V (1, 0));
+val it = false: bool
+```
