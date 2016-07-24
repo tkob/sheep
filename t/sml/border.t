@@ -25,20 +25,20 @@ val it = [3, 2, 1]: int list
 > open Border;
 ...
 > groupByDistance (3, [H (0, 0), V (0, 0), H (1, 0), V (1, 0), H (1, 1), V (1, 1)]);
-val it = [[H (0, 0), V (0, 0)], [H (1, 0), V (1, 0)], [H (1, 1), V (1, 1)]]:
-   border list list
+val it = [H (0, 0), V (0, 0), H (1, 0), V (1, 0), H (1, 1), V (1, 1)]:
+   border list
 ```
 
 ```
 > groupByDistance (3, [H (0, 0), V (1, 1), H (0, 1), H (1, 0)]);
-val it = [[H (0, 0)], [H (1, 0), H (0, 1)], [V (1, 1)]]: border list list
+val it = [H (0, 0), H (1, 0), H (0, 1), V (1, 1)]: border list
 ```
 
 # groupByDistance - duplicate
 
 ```
 > groupByDistance (3, [H (0, 0), V (1, 1), V (1, 1), H (1, 0)]);
-val it = [[H (0, 0)], [H (1, 0)], [V (1, 1)]]: border list list
+val it = [H (0, 0), H (1, 0), V (1, 1)]: border list
 ```
 
 # isNeighbour - true

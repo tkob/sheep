@@ -30,7 +30,7 @@ structure Border = struct
         let
           val groups = Array.array (maxDistance + 1, [])
           val toList = Array.foldr (fn (a,b) => a::b) []
-          fun loop [] = toList groups
+          fun loop [] = List.concat (toList groups)
             | loop (border::borders) =
                 let
                   val distance = manhattan border
