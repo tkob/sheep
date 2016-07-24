@@ -28,7 +28,7 @@ structure Border = struct
 
   fun groupByDistance (maxDistance, borders) =
         let
-          val groups = Array.array (maxDistance, [])
+          val groups = Array.array (maxDistance + 1, [])
           val toList = Array.foldr (fn (a,b) => a::b) []
           fun loop [] = toList groups
             | loop (border::borders) =
