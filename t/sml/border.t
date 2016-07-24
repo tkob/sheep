@@ -4,6 +4,8 @@
 > use "border.sml";
 ...
 val it = (): unit
+> open Border;
+...
 ```
 
 ```
@@ -22,8 +24,6 @@ val it = [3, 2, 1]: int list
 # groupByDistance
 
 ```
-> open Border;
-...
 > groupByDistance (3, [H (0, 0), V (0, 0), H (1, 0), V (1, 0), H (1, 1), V (1, 1)]);
 val it = [H (0, 0), V (0, 0), H (1, 0), V (1, 0), H (1, 1), V (1, 1)]:
    border list
