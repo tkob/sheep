@@ -1,0 +1,3 @@
+[submodule "ooxmlsml"]
+	path = ooxmlsml
+	url = https://github.com/tkob/ooxmlsml.git
