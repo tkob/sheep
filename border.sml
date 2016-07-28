@@ -4,19 +4,6 @@ structure Border = struct
   fun manhattan (H (x, y)) = x + y
     | manhattan (V (x, y)) = x + y
 
-  fun gt (H (x1, _), H (x2, _)) = x1 > x2
-    | gt (H (x1, _), V (x2, _)) = if x1 = x2 then true else x1 > x2
-    | gt (V (x1, _), V (x2, _)) = x1 > x2
-    | gt (V (x1, _), H (x2, _)) = if x1 = x2 then false else x1 > x2
-
-  exception Duplicate
-
-  fun insert gt (x, []) = x::[]
-    | insert gt (x, y::ys) =
-        if gt (x, y) then x::y::ys
-        else if x = y then raise Duplicate
-        else y::(insert gt (x, ys))
-
   fun isNeighbour (H (x1, y1), H (x2, y2)) = y1 = y2 andalso abs (x1 - x2) = 1
     | isNeighbour (V (x1, y1), V (x2, y2)) = x1 = x2 andalso abs (y1 - y2) = 1
     | isNeighbour (V (vx, vy), H (hx, hy)) =
@@ -35,8 +22,11 @@ structure Border = struct
                 let
                   val distance = manhattan border
                   val group = Array.sub (groups, distance)
+                  val group' = if List.exists (fn x => x = border) group
+                               then group
+                               else border::group
                 in
-                  Array.update (groups, distance, insert gt (border, group))
+                  Array.update (groups, distance, group')
                   handle Duplicate => ();
                   loop borders
                 end
