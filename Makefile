@@ -23,6 +23,9 @@ shpfront: $(SHPFRONT_SRC) shpfront.mlb
 parse.sml scan.ulex.sml: parse.cf
 	proglr -o $@ -l scan.ulex $<
 
+mkresource: mkresource.sml boot.sml mkresource.mlb
+	mlton mkresource.mlb
+
 clean:
 	rm -f shp shpc parse.sml scan.ulex.sml log.txt
 
