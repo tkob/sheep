@@ -54,11 +54,11 @@ structure Alpha = struct
         GlobalFun (span, Fun (span', v0, convertFunBody' env v1))
   and convertGuard env (NoGuard (span)) = NoGuard span
     | convertGuard env (Guard (span, v0)) = Guard (span, convertLargeExp env v0)
-  and convertFunBody env (FunBody (span, v0, v1)) =
+  and convertFunBody env (FunBody (span, pats, guard, body)) =
         let
-          val env' = List.foldr extendPat env v0
+          val env' = List.foldr extendPat env pats
         in
-          FunBody (span, convertPat' env' v0, convertLargeExp env' v1)
+          FunBody (span, convertPat' env' pats, convertGuard env' guard, convertLargeExp env' body)
         end
   and convertFunBody' env xs = map (convertFunBody env) xs
   and convertPat env (VarPat (span, v0)) = VarPat (span, rename (v0, env))
@@ -174,6 +174,7 @@ structure Alpha = struct
               Fun (span, funName, [
                 FunBody (span,
                   convertPat' env' v0,
+                  convertGuard env' (NoGuard span),
                   Exp (span, convertExp env' v1))])),
             ReturnStatement1 (span, Exp (span, VarExp (span, funName)))])
         end

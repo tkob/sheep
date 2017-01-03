@@ -59,7 +59,7 @@ Guard.   Guard ::= "when" LargeExp ;
 
 Val. ValDef ::= "val" [Pat] "=" LargeExp;
 Fun. FunDef ::= "fun" Ident "@" [FunBody] ;
-FunBody. FunBody ::= [Pat] "=" LargeExp1 ;
+FunBody. FunBody ::= [Pat] Guard "->" LargeExp1 ;
 separator nonempty FunBody "|" ;
 
 VarPat.  Pat ::= Ident ;

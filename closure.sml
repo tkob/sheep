@@ -85,9 +85,9 @@ structure Closure = struct
           in
             convertBinary2 Fun (f, convertFunBody') topFuns (span, v0, v1)
           end
-    and convertFunBody topFuns (FunBody (span, v0, v1)) =
-          convertBinary2 FunBody (convertPat', convertLargeExp)
-            topFuns (span, v0, v1)
+    and convertFunBody topFuns (FunBody (span, pats, guard, body)) =
+          convertTernary FunBody (convertPat', convertGuard, convertLargeExp)
+            topFuns (span, pats, guard, body)
     and convertFunBody' topFuns xs = convertList convertFunBody topFuns xs
     and convertPat topFuns (VarPat (span, v0)) = (topFuns, VarPat (span, v0))
       | convertPat topFuns (WildPat (span)) = (topFuns, WildPat span)
@@ -115,15 +115,15 @@ structure Closure = struct
             (* closure-convert function bodies *)
             val (topFuns', funBodies') = convertFunBody' topFuns funBodies
             (* prepend the free vars to formal arguments of the function bodies *)
-            fun addFormalFreeVars (FunBody (span, pats, largeExp)) =
+            fun addFormalFreeVars (FunBody (span, pats, guard, largeExp)) =
                   let
                     val freeVarPats = map (fn v => VarPat (span', v)) freeVars
                   in
                     case freeVarPats of
                          [] =>
-                           FunBody (span, pats, largeExp)
+                           FunBody (span, pats, guard, largeExp)
                        | _::_ =>
-                           FunBody (span, ListPat (span', freeVarPats)::pats, largeExp)
+                           FunBody (span, ListPat (span', freeVarPats)::pats, guard, largeExp)
                   end
             val funBodies'' = map addFormalFreeVars funBodies'
             (* move the function to top level *)

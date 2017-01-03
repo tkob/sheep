@@ -1,4 +1,4 @@
-fun two @ x = { return x, x }
+fun two @ x -> { return x, x }
 
 val 1, 1 = { return two @ 1 }
 val 1, 1 = { return two(1) }

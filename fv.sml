@@ -89,13 +89,15 @@ structure Fv = struct
         end
   and fvFunBody' env xs =
         List.foldr (fn (x, s) => S.union (fvFunBody env x) s) S.empty xs
-  and fvFunBody env (FunBody (span, v0, v1)) =
+  and fvFunBody env (FunBody (span, pats, guard, body)) =
         let
-          val boundVars = varsOfPat' v0
+          val boundVars = varsOfPat' pats
           val env' = S.union boundVars env
         in
-          fvLargeExp env' v1
+          S.union (fvGuard env' guard) (fvLargeExp env' body)
         end
+  and fvGuard env (NoGuard span) = S.empty
+    | fvGuard env (Guard (span, largeExp)) = fvLargeExp env largeExp
 
   fun fvFunDef vars (Fun (span, funName, funBodies)) =
         let

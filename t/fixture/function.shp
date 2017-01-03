@@ -1,8 +1,8 @@
 # global functions
-fun add1 @ x = x + 1
+fun add1 @ x -> x + 1
 val 2 = add1 @ 1
 
-fun addxy @ x, y = x + y
+fun addxy @ x, y -> x + y
 val 3 = addxy @ 1, 2
 
 val = {
@@ -13,10 +13,10 @@ val = {
 
 # local functions
 val = {
-  fun add2 @ x = x + 345
+  fun add2 @ x -> x + 345
   val 666 = add2 @ 321
 
-  fun mulxy @ x, y = x * y
+  fun mulxy @ x, y -> x * y
   val 6 = mulxy @ 2, 3
 
   return
@@ -36,11 +36,11 @@ val = {
 
 # closures
 val = {
-  fun add @ x, y = x + y
-  fun add3 @ x = add @ x, 3
+  fun add @ x, y -> x + y
+  fun add3 @ x -> add @ x, 3
   val 4 = add3 @ 1
 
-  fun apply @ g, x = g @ x
+  fun apply @ g, x -> g @ x
   val 11 = apply @ (@ y -> y + 7), 4
   val 11 = apply @ @ y -> y + 7, 4 # confusing?
   val 11 = apply(@ y -> y + 7, 4)

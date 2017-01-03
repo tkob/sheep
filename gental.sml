@@ -280,11 +280,19 @@ structure GenTal = struct
                 (* go here if any matched *)
                 emit (Label endLabel)
               end)
-    and compileFunBody endLabel (FunBody (span, pats, largeExp)) =
+    and compileFunBody endLabel (FunBody (span, pats, guard, largeExp)) =
           let
             val nomatchLabel = Alpha.gensym "nomatch"
           in
             compilePatsLocal (pats, (fn () => emit (Load "args")), nomatchLabel);
+            comment "guard begin";
+            comment (showGuard guard);
+            case guard of
+                 NoGuard _ => ()
+               | Guard (span', guardCondition) => (
+                   compileLargeExp SV guardCondition;
+                   emit (JumpFalse nomatchLabel));
+            comment "guard end";
             compileLargeExp MV largeExp;
             emit (Jump endLabel);
             (* match failed *)
