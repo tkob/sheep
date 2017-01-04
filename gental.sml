@@ -556,7 +556,12 @@ structure GenTal = struct
       | compileExp ctx (AddExp (span, v0, v1)) = compileBinOp (ctx, Add, "add", v0, v1)
       | compileExp ctx (SubExp (span, v0, v1)) = compileBinOp (ctx, Sub, "sub", v0, v1)
       | compileExp ctx (MulExp (span, v0, v1)) = compileBinOp (ctx, Mult, "mul", v0, v1)
-      | compileExp ctx (DivExp (span, v0, v1)) = compileBinOp (ctx, Div, "div", v0, v1)
+      | compileExp ctx (DivExp (span, v0, v1)) = (
+          emit (PushStr "div");
+          compileExp SV v0;
+          compileExp SV v1;
+          emit (InvokeStk 3);
+          emitMV ctx)
       | compileExp ctx (App2Exp (span, VarExp (span', v0), v1)) =
           compileApp (ctx, v0, v1)
       | compileExp ctx (App2Exp (span, v0, v1)) =
@@ -586,14 +591,38 @@ structure GenTal = struct
       | compileExp ctx (LargeExp (span, v0)) = compileLargeExp ctx v0
     and compileExp' ctx xs = List.app (compileExp ctx) xs
     (* utility functions follow *)
-    and compileBinOp' (ctx, opcode, proc, v0, v1, postf) = (
-          (* compileExp SV v0; compileExp SV v1; emit opcode; *)
-          emit (PushStr proc);
-          compileExp SV v0;
-          compileExp SV v1;
-          emit (InvokeStk 3);
-          postf ();
-          emitMV ctx)
+    and compileBinOp' (ctx, opcode, proc, v0, v1, postf) =
+          let
+            val badLabel = Alpha.gensym "bad"
+            val okLabel = Alpha.gensym "ok"
+            val noRecalcLabel = Alpha.gensym "noRecalc"
+          in
+            emit (BeginCatch badLabel);
+            compileExp SV v0;
+            compileExp SV v1;
+            emit opcode;
+            emit (Jump okLabel);
+
+            emit (Label badLabel);
+            emit (PushStr "");
+
+            emit (Label okLabel);
+            emit EndCatch;
+
+            emit Dup;
+            emit (PushStr "");
+            emit Eq;
+            emit (JumpFalse noRecalcLabel);
+            emit Pop;
+            emit (PushStr proc);
+            compileExp SV v0;
+            compileExp SV v1;
+            emit (InvokeStk 3);
+
+            emit (Label noRecalcLabel);
+            postf ();
+            emitMV ctx
+          end
     and compileBinOp (ctx, opcode, proc, v0, v1) =
           compileBinOp' (ctx, opcode, proc, v0, v1, fn () => ())
     and compileBinOpBool (ctx, opcode, proc, v0, v1) =

@@ -46,6 +46,15 @@ BEGIN {
   ! 2 * 3, 6
   ! { return 2, 3 } * { return 5, 7 }, 10
 
+  ! "## tests for rational arith ##"
+  ! 2/3 + 1, 5/3
+  ! 1 + 2/3, 5/3
+  ! 5/3 - 1, 2/3
+  ! 1 - 1/3, 2/3
+  ! 2/3 * 3, 2
+  ! 3 * 2/3, 2
+  ! 1/3 + 2/3, 1
+
   ! "## tests for function application ##"
   ! (@x, y -> x * y) @ 2, 3
   ! (@x, y -> x * y) @ { return 2, 3 }
