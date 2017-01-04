@@ -38,6 +38,14 @@
     ## tests for * ## 
     6 6 
     10 10 
+    ## tests for rational arith ## 
+    5/3 5/3 
+    5/3 5/3 
+    2/3 2/3 
+    2/3 2/3 
+    2 2 
+    2 2 
+    1 1 
     ## tests for function application ## 
     6 
     6 
