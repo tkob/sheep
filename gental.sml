@@ -268,23 +268,53 @@ structure GenTal = struct
             emit (Label endLabel)
           end
     and compileFunDef (funDef as Fun (span, funName, funBodies)) =
-            proc funName ["args"] (fn () =>
+          let
+            (* All arguments are variables? *)
+            fun simple [] [] = SOME 0
+              | simple (x::xs) [] =
+                  if List.all (fn x' => x' = x) xs then SOME x else NONE
+              | simple numPatss (FunBody (_, pats, _, _)::funBodies) =
+                  let
+                    val numPats = length pats
+                    fun isVarPat (VarPat _) = true
+                      | isVarPat _ = false
+                  in
+                    if not (List.all isVarPat pats) then NONE
+                    else simple (numPats::numPatss) funBodies
+                  end
+            val args = case simple [] funBodies of
+                            SOME numPats =>
+                              List.tabulate (numPats, fn _ => Alpha.gensym "arg")
+                          | NOME => ["args"]
+          in
+            proc funName args (fn () =>
               let
                 val endLabel = Alpha.gensym "end"
                 val fvs = Fv.fvFunDef [] funDef
               in
                 List.app importGlobalVal fvs;
-                List.app (compileFunBody endLabel) funBodies;
+                List.app (compileFunBody endLabel args) funBodies;
                 (* go here if no funBodies matched *)
                 emitError ("match failed in function " ^ funName, SOME span);
                 (* go here if any matched *)
                 emit (Label endLabel)
               end)
-    and compileFunBody endLabel (FunBody (span, pats, guard, largeExp)) =
+          end
+    and compileFunBody endLabel args (FunBody (span, pats, guard, largeExp)) =
           let
             val nomatchLabel = Alpha.gensym "nomatch"
           in
-            compilePatsLocal (pats, (fn () => emit (Load "args")), nomatchLabel);
+            if args = ["args"] then
+              compilePatsLocal (pats, (fn () => emit (Load "args")), nomatchLabel)
+            else
+              let
+                fun move (arg, VarPat (_, var)) = (
+                      emit (Load arg);
+                      emit (Store var);
+                      emit Pop)
+              in
+                ListPair.app move (args, pats)
+              end;
             comment "guard begin";
             comment (showGuard guard);
             case guard of
