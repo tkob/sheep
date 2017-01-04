@@ -1,3 +1,4 @@
+(* Extract free variables from AST *)
 structure Fv = struct
   open Parse.Ast
 

@@ -1,3 +1,4 @@
+(* Rename variable names *)
 structure Alpha = struct
   open Parse.Ast
 
