@@ -1,3 +1,6 @@
 [submodule "ooxmlsml"]
 	path = ooxmlsml
 	url = https://github.com/tkob/ooxmlsml.git
+[submodule "tclmessagepack"]
+	path = tclmessagepack
+	url = https://github.com/tkob/tclmessagepack.git
