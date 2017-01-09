@@ -378,14 +378,44 @@ namespace eval sheepruntime {
         set writeproc $writeprocs($params(t))
     }
 
-    proc main {} {
+    proc process_input {} {
         global argv env
+        global NR
+        set NR 0
+
+        set cmd [list $env(shp_front)]
+        lappend cmd {*}[lrange $argv 1 end]
+        set f [open |$cmd]
+        fconfigure $f -encoding utf-8
+        set interp [interp create -safe]
+        while {[gets $f line] >= 0} {
+            ::sheepruntime::debug "line=$line"
+            ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
+            set ::sheepruntime::__! {}
+
+            if {[lindex $line 0] != "%"} {
+                set record [interp eval $interp set record "{$line}"]
+                ::sheepruntime::debug "record=$record"
+                incr NR
+
+                if {[array names ::sheepruntime::__patbody -exact $::sheepruntime::__mode] != {}} {
+                    foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
+                        if {[${__pb} {*}$record]} {
+                            ::sheepruntime::emitbang
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        close $f
+    }
+
+    proc main {} {
+        global argv
         ::sheepruntime::getoptions argv
 
         source [lindex $argv 0]
-
-        global NR
-        set NR 0
 
         if {[llength [info procs __BEGIN]]} {
             __BEGIN
@@ -397,34 +427,8 @@ namespace eval sheepruntime {
         # If there are no pattern-bodies, input files are not read at all
         if {[array size ::sheepruntime::__patbody] > 0 ||
             [llength [info procs __END]] > 0} {
-            set cmd [list $env(shp_front)]
-            lappend cmd {*}[lrange $argv 1 end]
-            set f [open |$cmd]
-            fconfigure $f -encoding utf-8
-            set interp [interp create -safe]
-            while {[gets $f line] >= 0} {
-                ::sheepruntime::debug "line=$line"
-                ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
-                set ::sheepruntime::__! {}
-
-                if {[lindex $line 0] != "%"} {
-                    set record [interp eval $interp set record "{$line}"]
-                    ::sheepruntime::debug "record=$record"
-                    incr NR
-
-                    if {[array names ::sheepruntime::__patbody -exact $::sheepruntime::__mode] != {}} {
-                        foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
-                            if {[${__pb} {*}$record]} {
-                                ::sheepruntime::emitbang
-                                break
-                            }
-                        }
-                    }
-                }
-            }
-            close $f
+           process_input
         }
-
 
         if {[llength [info procs __END]]} {
             __END
