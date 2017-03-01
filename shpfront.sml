@@ -77,6 +77,18 @@ end
 
 structure AwkReader = struct
   open TypeUtils
+  open MessagePackBinIO.Pack
+
+  local
+    val stdoutWriter = Posix.IO.mkBinWriter {
+      fd = Posix.FileSys.stdout,
+      name = "stdout",
+      appendMode = true,
+      initBlkMode = false,
+      chunkSize = 1024 }
+  in
+    val stdout = BinIO.StreamIO.mkOutstream (stdoutWriter, IO.BLOCK_BUF)
+  end
 
   fun appHeadAndTail fHead fTail [] = ()
     | appHeadAndTail fHead fTail (x::xs) = (
@@ -100,25 +112,19 @@ structure AwkReader = struct
                      NONE => ()
                    | SOME (record, ins) =>
                        let
-                         fun emitField field =
+                         fun packField field outs =
                                if isEntier field then
-                                 print field
+                                 doPack packInt (Option.valOf (Int.fromString field)) outs
                                else if isDouble field then
-                                 print field
+                                 doPack packReal (Option.valOf (Real.fromString field)) outs
                                else if isTrue field then
-                                 print "true"
+                                 doPack packBool true outs
                                else if isFalse field then
-                                 print "false"
-                               else (
-                                 print "{%str \"";
-                                 escapeAndPrint field;
-                                 print "\"}")
-                         fun emitSpaceAndField field = (
-                               print " ";
-                               emitField field)
+                                 doPack packBool false outs
+                               else
+                                 doPack packString field outs
                        in
-                         appHeadAndTail emitField emitSpaceAndField record;
-                         print "\n";
+                         doPack (packList (fromFn packField)) record stdout;
                          loop ins
                        end
         in

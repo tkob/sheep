@@ -1,5 +1,7 @@
 # Setup
 
+    % lappend auto_path .
+    ...
     % source shprun.tcl
 
 # Addition
