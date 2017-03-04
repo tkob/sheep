@@ -6,6 +6,7 @@ package require Tcl 8.6
 package require cmdline
 package require textutil
 package require csv
+package require messagepack
 
 namespace eval sheepruntime {
     namespace export main
@@ -378,36 +379,34 @@ namespace eval sheepruntime {
         set writeproc $writeprocs($params(t))
     }
 
+    proc process_record {record} {
+        variable __!; set __! {}
+        global NR; incr NR
+        variable __patbody
+        variable __mode
+
+        if {[array names __patbody -exact ${__mode}] != {}} {
+            foreach __pb $__patbody(${__mode}) {
+                if {[${__pb} {*}[lrange $record 1 end]]} {
+                    ::sheepruntime::emitbang
+                    break
+                }
+            }
+        }
+    }
+
     proc process_input {} {
         global argv env
-        global NR
-        set NR 0
 
         set cmd [list $env(shp_front)]
         lappend cmd {*}[lrange $argv 1 end]
         set f [open |$cmd]
-        fconfigure $f -encoding utf-8
-        set interp [interp create -safe]
-        while {[gets $f line] >= 0} {
-            ::sheepruntime::debug "line=$line"
-            ::sheepruntime::debug "mode=${::sheepruntime::__mode}"
-            set ::sheepruntime::__! {}
+        fconfigure $f -encoding binary
 
-            if {[lindex $line 0] != "%"} {
-                set record [interp eval $interp set record "{$line}"]
-                ::sheepruntime::debug "record=$record"
-                incr NR
+        ::messagepack::unpack_and_callback \
+            [list read $f] \
+            [list ::sheepruntime::process_record]
 
-                if {[array names ::sheepruntime::__patbody -exact $::sheepruntime::__mode] != {}} {
-                    foreach __pb $::sheepruntime::__patbody($::sheepruntime::__mode) {
-                        if {[${__pb} {*}$record]} {
-                            ::sheepruntime::emitbang
-                            break
-                        }
-                    }
-                }
-            }
-        }
         close $f
     }
 

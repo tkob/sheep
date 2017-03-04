@@ -65,4 +65,6 @@ AS_IF([test $shp_compilation_status -ne 0], [
 ])
 
 # Run
+TCLLIBPATH="$TCLLIBPATH $shp_mydir"
+export TCLLIBPATH
 "${shp_mydir}shprun.tcl" "$shp_prog" "$@"
