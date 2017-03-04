@@ -4,23 +4,22 @@ exec tclsh "$0" ${1+"$@"}
 
 package require Tcl 8.5
 
-proc shift {var n} {
+proc shift {var} {
     upvar $var list
-    set list [lrange $list $n end]
+    set list [lassign $list first]
+    return $first
 }
 
 while {true} {
     lassign $argv first
     if {![string match {-*} $first]} break
-    shift argv 1
+    shift argv
     if {$first == "--"} {
         break
     } elseif {$first == "-encoding"} {
-        lassign $argv encoding
-        shift argv 1
+        set encoding [shift argv]
     } elseif {$first == "-translation"} {
-        lassign $argv translation
-        shift argv 1
+        set translation [shift argv]
     } else {
         puts "unknown option: $first"
         exit 1
