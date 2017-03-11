@@ -7,10 +7,6 @@ check: shp shpc shpfront
 	prove --exec 't/do-sml-test -log log.txt' t/sml/*.t
 	prove --exec 't/do-test -log log.txt' t/*.t
 
-shp: shp.in
-	autom4te -l M4sh -o $@ $<
-	perl -i -pne 's/^\s*export\s+(LC_ALL|LANGUAGE)\s*$$//' $@
-
 %.sml: %.sml.in
 	autom4te -l m4sugar -o $@ $<
 

@@ -368,6 +368,7 @@ namespace eval sheepruntime {
         variable writeproc
         upvar argv $argvVar
         set options {
+            {e.arg "" "one line of program"}
             {t.arg "awk" "output format"}
         }
         set usage ": \[options]"
@@ -377,6 +378,8 @@ namespace eval sheepruntime {
             error "invalid output format: $params(t)"
         }
         set writeproc $writeprocs($params(t))
+
+        return [array get params] 
     }
 
     proc process_record {record} {
@@ -398,8 +401,8 @@ namespace eval sheepruntime {
     proc process_input {} {
         global argv env
 
-        set cmd [list $env(shp_front)]
-        lappend cmd {*}[lrange $argv 1 end]
+        set cmd [list shpfront]
+        lappend cmd {*}$argv
         set f [open |$cmd]
         fconfigure $f -encoding binary
 
@@ -412,9 +415,25 @@ namespace eval sheepruntime {
 
     proc main {} {
         global argv
-        ::sheepruntime::getoptions argv
+        array set options [::sheepruntime::getoptions argv]
 
-        source [lindex $argv 0]
+        # Get a input channel for source code
+        if {$options(e) != ""} {
+            set source_code_chan [file tempfile]
+            puts -nonewline $source_code_chan $options(e)
+            seek $source_code_chan 0
+        } else {
+            set argv [lassign $argv source_code_file_name]
+            set source_code_chan [open $source_code_file_name]
+        }
+
+        # Compile
+        set tcl_code_chan [open "|shpc <@ $source_code_chan"]
+        close $source_code_chan
+        set tcl_code [read $tcl_code_chan]
+        close $tcl_code_chan
+
+        eval $tcl_code
 
         if {[llength [info procs __BEGIN]]} {
             __BEGIN
