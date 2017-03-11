@@ -1,6 +1,6 @@
 #! /bin/sh
 
-TCLLIBPATH="$TCLLIBPATH $(dirname $0)"
+TCLLIBPATH="$TCLLIBPATH `dirname $0`"
 export TCLLIBPATH
 
-exec $(dirname $0)/shprun.tcl "$@"
+exec `dirname $0`/shprun.tcl "$@"
