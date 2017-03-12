@@ -2,7 +2,7 @@
 
     % lappend auto_path .
     ...
-    % source shprun.tcl
+    % source shp
 
 # Addition
 
