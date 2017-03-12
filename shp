@@ -4,7 +4,6 @@ exec env TCLLIBPATH="$TCLLIBPATH `dirname $0`" tclsh "$0" ${1+"$@"}
 
 package require Tcl 8.6
 package require cmdline
-package require textutil
 package require csv
 package require messagepack
 
