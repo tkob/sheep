@@ -371,7 +371,7 @@ namespace eval sheepruntime {
             {e.arg "" "one line of program"}
             {t.arg "awk" "output format"}
         }
-        set usage ": \[options]"
+        set usage ": \[options] \[programfile] \[argument]..."
         array set params [::cmdline::getoptions argv $options $usage]
 
         if {![info exists writeprocs($params(t))]} {
